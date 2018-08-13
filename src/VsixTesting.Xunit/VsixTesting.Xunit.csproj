@@ -1,0 +1,47 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <IsMainProject>true</IsMainProject>
+    <TargetFramework>net452</TargetFramework>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <IsPackable>true</IsPackable>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <DebugType>full</DebugType>
+    <DebugSymbols>true</DebugSymbols>
+    <InheritDoc>true</InheritDoc>
+    <RunCodeCoverage>true</RunCodeCoverage>
+    <GenerateHtmlCoverageReport>true</GenerateHtmlCoverageReport>
+    <CopyProjectReferencesToPackage>true</CopyProjectReferencesToPackage>
+    <DocumentationFile>$(OutputPath)$(AssemblyName).xml</DocumentationFile>
+    <RootNamespace>VsixTesting.XunitX</RootNamespace>
+
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="PresentationFramework" />
+    <Reference Include="System.Runtime.Remoting" />
+    <Reference Include="WindowsBase" />
+    <ProjectReference Include="..\VsixTesting\VsixTesting.csproj" PrivateAssets="all" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.ValueTuple" Version="4.4.0" />
+    <PackageReference Include="EnvDTE" Version="8.0.2" />
+    <PackageReference Include="Ben.Demystifier" Version="0.1.1" />
+    <PackageReference Include="xunit.extensibility.core" Version="$(XunitVersion)" />
+    <PackageReference Include="xunit.runner.utility" Version="$(XunitVersion)" PrivateAssets="all" />
+    <PackageReference Include="xunit.extensibility.execution" Version="$(XunitVersion)" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.VisualStudio.SDK.EmbedInteropTypes" Version="15.0.17" PrivateAssets="all" />
+    <PackageReference Include="Nerdbank.GitVersioning" Version="2.1.65" PrivateAssets="all" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="$(SolutionDir)\src\VsixTesting\GlobalSuppressions.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="VsixTesting.Xunit.props" PackagePath="build" />
+  </ItemGroup>
+
+  <Import Project="..\..\Local.targets" Condition="Exists('..\..\Local.targets')" />
+</Project>

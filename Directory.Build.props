@@ -1,0 +1,39 @@
+<Project>
+  <PropertyGroup>
+    <SolutionDir>$(MSBuildThisFileDirectory)</SolutionDir>
+    <Configuration Condition="'$(Configuration)' == ''">Debug</Configuration>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <BaseIntermediateOutputPath>$(SolutionDir)obj\$(MSBuildProjectName)\</BaseIntermediateOutputPath>
+    <OutputPath>$(SolutionDir)bin\$(MSBuildProjectName)\$(Configuration)\</OutputPath>
+    <AssemblyOriginatorKeyFile>$(SolutionDir)key.snk</AssemblyOriginatorKeyFile>
+    <GlobalPackagesPath>$(USERPROFILE)\.nuget\packages\</GlobalPackagesPath>
+    <LangVersion>latest</LangVersion>
+    <RunCodeCoverage>false</RunCodeCoverage>
+    <IsTestProject>false</IsTestProject>
+    <IsMainProject>false</IsMainProject>
+    <SignAssembly>true</SignAssembly>
+  </PropertyGroup>
+  
+  <PropertyGroup>
+    <PackageLicenseUrl>https://github.com/josetr/VsixTesting/blob/master/LICENSE.md</PackageLicenseUrl>
+    <PackageProjectUrl>https://github.com/josetr/VsixTesting</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/josetr/VsixTesting</RepositoryUrl> 
+    <PackageTags>VisualStudio, Extension, Testing, Xunit, VSIX</PackageTags>
+    <Copyright>Copyright ©2018 Jose Torres</Copyright>
+    <Authors>Jose Torres</Authors>
+    <Description>VsixTesting allows you to easily test your Visual Studio Extensions.</Description>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(AppVeyor)' != ''">
+    <RestoreAdditionalProjectSources Condition="Exists('$(SolutionDir)bin\VsixTesting.Xunit\$(Configuration)')">
+      $(SolutionDir)bin\VsixTesting.Xunit\$(Configuration)
+    </RestoreAdditionalProjectSources>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="StyleCop.Analyzers" Version="1.1.0-beta008" PrivateAssets="all" />
+    <AdditionalFiles Include="$(SolutionDir)stylecop.json" />
+  </ItemGroup>
+</Project>

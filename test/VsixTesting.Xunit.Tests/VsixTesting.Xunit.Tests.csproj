@@ -1,0 +1,25 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net452</TargetFramework>
+    <IsTestProject>true</IsTestProject>
+    <RootNamespace>VsixTesting.XunitX.Tests</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="VSSDK.Shell.11" Version="11.0.4" />
+  </ItemGroup>
+  <Import Condition="'$(AppVeyor)' == ''" Project="..\..\src\VsixTesting.Xunit\VsixTesting.Xunit.props" />
+  
+  <ItemGroup Condition="'$(AppVeyor)' != ''">
+    <PackageReference Include="VsixTesting.Xunit" Version="$(NBGV_NuGetPackageVersion)" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="$(SolutionDir)\test\VsixTesting.Tests\GlobalSuppressions.cs" />
+  </ItemGroup>
+  
+  <ItemGroup Condition="'$(AppVeyor)' == ''">
+    <ProjectReference Include="..\..\src\VsixTesting\VsixTesting.csproj" />
+    <ProjectReference Include="..\..\src\VsixTesting.Xunit\VsixTesting.Xunit.csproj" />
+  </ItemGroup>
+</Project>

@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "VsixTesting.Xunit": {
+      "commandName": "Executable",
+      "executablePath": "msbuild",
+      "commandLineArgs": "/t:test",
+      "workingDirectory": "$(SolutionDir)/src/$(ProjectName)"
+    }
+  }
+}

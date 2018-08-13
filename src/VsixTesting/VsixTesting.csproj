@@ -1,0 +1,29 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net452</TargetFramework>
+    <DocumentationFile>$(OutputPath)$(AssemblyName).xml</DocumentationFile>
+    <EmbedResourceDateTime>true</EmbedResourceDateTime>
+    <IsPackable>false</IsPackable>
+    <IsMainProject>true</IsMainProject>
+    <DebugType>full</DebugType>
+    <DebugSymbols>true</DebugSymbols>
+    <RunCodeCoverage>false</RunCodeCoverage>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\VsixTesting.ExtensionInstaller\VsixTesting.ExtensionInstaller.csproj" PrivateAssets="all" />
+    <ProjectReference Include="..\VsixTesting.Invoker\VsixTesting.Invoker.csproj" PrivateAssets="all" />
+    <EmbeddedResource Include="..\..\bin\VsixTesting.ExtensionInstaller\$(Configuration)\net452\VsixTesting.ExtensionInstaller.exe" LogicalName="%(FileName)%(Extension)" Link="Resources/%(FileName)%(Extension)" />
+    <EmbeddedResource Include="..\..\bin\VsixTesting.Invoker\$(Configuration)\net452\VsixTesting.Invoker.vsix" LogicalName="%(FileName)%(Extension)" Link="Resources/%(FileName)%(Extension)" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="PresentationFramework" />
+    <Reference Include="System.Runtime.Remoting" />
+    <PackageReference Include="System.ValueTuple" Version="4.4.0" />
+    <PackageReference Include="EnvDTE" Version="8.0.2" />
+    <PackageReference Include="EnvDTE80" Version="8.0.3" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.VisualStudio.Setup.Configuration.Interop" Version="1.16.30" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.VisualStudio.SDK.EmbedInteropTypes" Version="15.0.17" PrivateAssets="all" />
+  </ItemGroup>
+</Project>

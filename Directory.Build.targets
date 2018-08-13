@@ -1,0 +1,136 @@
+<Project>
+  <!-- Testing & Coverage -->
+  <PropertyGroup>
+    <XunitVersion>2.3.1</XunitVersion>
+    <OpenCoverVersion>4.6.519</OpenCoverVersion>
+    <CodeCovVersion>1.0.5</CodeCovVersion>
+    <ReportGeneratorVersion>3.1.2</ReportGeneratorVersion>
+    <OpenCoverPath>$(GlobalPackagesPath)opencover\$(OpenCoverVersion)\tools\opencover.console.exe</OpenCoverPath>
+    <CodeCovPath>$(GlobalPackagesPath)codecov\$(CodeCovVersion)\tools\codecov.exe</CodeCovPath>
+    <ReportGeneratorPath>$(GlobalPackagesPath)reportgenerator\$(ReportGeneratorVersion)\tools\ReportGenerator.exe</ReportGeneratorPath>
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+  </PropertyGroup>
+
+  <ItemGroup Condition="$(IsMainProject) == true">
+    <PackageReference Include="xunit.runner.console" Version="$(XunitVersion)" PrivateAssets="all" />
+    <PackageReference Include="OpenCover" Version="$(OpenCoverVersion)" PrivateAssets="all" />
+    <PackageReference Include="Codecov" Version="$(CodeCovVersion)" PrivateAssets="all" />
+    <PackageReference Include="ReportGenerator" Version="$(ReportGeneratorVersion)" PrivateAssets="all" />
+  </ItemGroup>
+
+  <ItemGroup Condition="$(IsTestProject) == true">
+    <PackageReference Include="xunit" Version="$(XunitVersion)" />
+    <PackageReference Include="xunit.runner.console" Version="$(XunitVersion)" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="$(XunitVersion)" />
+  </ItemGroup>
+
+  <Target Name="Test" Condition="$(IsMainProject) == true">
+    <ItemGroup>
+      <TestAssemblies Include="$(SolutionDir)bin\**\$(Configuration)\$(TargetFramework)\$(AssemblyName)*.tests.dll" />
+    </ItemGroup>
+    <PropertyGroup>
+      <CoverageOutputDirectory>$(SolutionDir)bin\$(AssemblyName)\</CoverageOutputDirectory>
+      <TestResultsOutputXmlPath>$(CoverageOutputDirectory)$(AssemblyName).TestResults.xml</TestResultsOutputXmlPath>
+      <CoverageOutputXmlPath>$(CoverageOutputDirectory)Coverage.xml</CoverageOutputXmlPath>
+      <CoverageOutputHtmlDir>$(CoverageOutputDirectory)Coverage</CoverageOutputHtmlDir>
+      <XunitTargetArgs>@(TestAssemblies->'%(FullPath)', ' ') -stoponfail -noshadow -appveyor -diagnostics -xml $(TestResultsOutputXmlPath)</XunitTargetArgs>
+    </PropertyGroup>
+
+    <Exec Condition="$(RunCodeCoverage) != true" 
+          Command="
+$(XunitConsolePathX86) ^
+  $(XunitTargetArgs)" />
+
+    <Exec Condition="$(RunCodeCoverage) == true" 
+          Command='
+"$(OpenCoverPath)" ^
+  -target:"$(XunitConsolePathX86)" ^
+  -targetargs:"$(XunitTargetArgs)" ^
+  -searchdirs:"$(OutputPath)/" ^
+  -filter:"+[$(AssemblyName)]* -[$(AssemblyName)]Xunit.Internal.*" ^
+  -output:"$(CoverageOutputXmlPath)" ^
+  -register:user ^
+  -returntargetcode:10000' />
+
+    <Exec Condition="$(RunCodeCoverage) == true" 
+          WorkingDirectory="$(SolutionDir)" 
+          Command='
+"$(CodeCovPath)" ^
+  -f $(CoverageOutputXmlPath)' />
+
+    <Exec Condition="$(GenerateHtmlCoverageReport) == true AND '$(AppVeyor)' == ''"
+          Command='
+"$(ReportGeneratorPath)" ^
+  -targetdir:"$(CoverageOutputHtmlDir)" ^
+  -reports:"$(CoverageOutputXmlPath)" ^
+  -reporttypes html
+
+$(CoverageOutputHtmlDir)\index.htm' />
+  </Target>
+
+  <!-- InheritDoc -->
+  <ItemGroup Condition="$(InheritDoc) == true">
+    <PackageReference Include="InheritDoc" Version="1.2.0.1" PrivateAssets="all" />
+    <PackageReference Include="InheritDocLib" Version="1.2.0.1" PrivateAssets="all" />
+  </ItemGroup>
+
+  <Target Name="InheritDocTarget" AfterTargets="AfterBuild" Condition="$(InheritDoc) == true">
+    <Exec Command="InheritDoc.exe -o" WorkingDirectory="$(OutputPath)" />
+  </Target>
+
+  <!-- CopyProjectReferencesToPackage -->
+  <PropertyGroup Condition="$(CopyProjectReferencesToPackage) == true">
+    <TargetsForTfmSpecificBuildOutput>$(TargetsForTfmSpecificBuildOutput);CopyProjectReferencesToPackageTarget</TargetsForTfmSpecificBuildOutput>
+  </PropertyGroup>
+
+  <Target Name="CopyProjectReferencesToPackageTarget" DependsOnTargets="ResolveReferences">
+    <ItemGroup>
+      <BuildOutputInPackage Include="@(ReferenceCopyLocalPaths-&gt;WithMetadataValue('ReferenceSourceTarget', 'ProjectReference'))" />
+    </ItemGroup>
+  </Target>
+
+  <!-- EmbedResourceDateTimeTask -->
+  <UsingTask TaskName="EmbedResourceDateTimeTask" TaskFactory="CodeTaskFactory" AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.v4.0.dll">
+    <ParameterGroup>
+      <EmbeddedResources ParameterType="Microsoft.Build.Framework.ITaskItem[]" Required="true" />
+      <CurrentDirectory ParameterType="System.String" Required="true" />
+      <SaveTo ParameterType="System.String" Required="true" />
+    </ParameterGroup>
+    <Task>
+      <Reference Include="System.Xml" />
+      <Reference Include="System.Xml.Linq" />
+      <Using Namespace="System.Xml.Linq" />
+      <Code Type="Fragment" Language="cs">
+        <![CDATA[
+        var items = new XElement("Items");
+
+        foreach (var res in EmbeddedResources)
+        {
+            var path = Path.Combine(CurrentDirectory, res.ItemSpec);
+            if (!File.Exists(path))
+                Log.LogMessage(MessageImportance.High, "Warning -> Embedded Resource " + path + " doesn't exist.");
+            else
+            {
+                var item = new XElement("Item");
+                item.Add(new XAttribute("Name", Path.GetFileName(path)));
+                item.Add(new XAttribute("CreationTime", File.GetCreationTime(path).Ticks));
+                item.Add(new XAttribute("LastWriteTime", File.GetLastWriteTime(path).Ticks));
+                item.Add(new XAttribute("LastAccessTime", File.GetLastAccessTime(path).Ticks));
+                items.Add(item);
+            }
+        }
+
+        new XDocument(items).Save(SaveTo);
+      ]]>
+      </Code>
+    </Task>
+  </UsingTask>
+  <Target Name="EmbedResourceDateTimeTarget" AfterTargets="ResolveAssemblyReferences" Condition="'$(EmbedResourceDateTime)' == 'true'" >
+    <MakeDir Directories="$(IntermediateOutputPath)" />
+    <EmbedResourceDateTimeTask EmbeddedResources="@(EmbeddedResource)" CurrentDirectory="$(MSBuildProjectDirectory)" SaveTo="$(IntermediateOutputPath)EmbeddedFileDateTime.xml" />
+    <ItemGroup>
+      <EmbeddedResource Include="$(IntermediateOutputPath)EmbeddedFileDateTime.xml" />
+      <FileWrites Include="$(IntermediateOutputPath)EmbeddedFileDateTime.xml" />
+    </ItemGroup>
+  </Target>
+</Project>

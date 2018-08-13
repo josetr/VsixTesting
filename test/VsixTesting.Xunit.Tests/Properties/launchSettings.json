@@ -1,0 +1,12 @@
+{
+  "profiles": {
+    "VsixTesting.Xunit.Tests": {
+      "commandName": "Executable",
+      "environmentVariables": {
+        "APPVEYOR_API_URL": "123456"
+      },
+      "executablePath": "$(XunitConsolePathX86)",
+      "commandLineArgs": "$(AssemblyName).dll -appveyor"
+    }
+  }
+}

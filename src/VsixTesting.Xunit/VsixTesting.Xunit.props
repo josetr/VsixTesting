@@ -1,0 +1,8 @@
+﻿<Project>
+  <ItemGroup>
+    <AssemblyAttribute Include="Xunit.TestFramework">
+      <_Parameter1>Xunit.VsTestFramework</_Parameter1>
+      <_Parameter2>VsixTesting.Xunit</_Parameter2>
+    </AssemblyAttribute>
+  </ItemGroup>
+</Project>

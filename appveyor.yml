@@ -1,0 +1,21 @@
+image: Visual Studio 2017
+configuration: Release
+platform: Any CPU
+version: 0.0.{build}
+
+install:
+- dotnet tool install -g nbgv
+- nbgv cloud --all-vars
+- msbuild src/VsixTesting.Xunit /t:restore /v:m /nologo
+- msbuild src/VsixTesting.Xunit /v:m /nologo
+- msbuild /t:restore /v:m /nologo
+
+build_script:
+- msbuild /v:m /nologo
+
+artifacts:
+- path: '**\TestResults.xml'
+- path: '**\*.nupkg'
+
+test_script:
+- msbuild /t:test

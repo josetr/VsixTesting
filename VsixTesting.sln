@@ -1,0 +1,78 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.27703.2018
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{57DC6192-9049-4023-B6B8-F0587F704BFE}"
+	ProjectSection(SolutionItems) = preProject
+		.gitattributes = .gitattributes
+		.gitignore = .gitignore
+		appveyor.yml = appveyor.yml
+		Directory.Build.props = Directory.Build.props
+		Directory.Build.targets = Directory.Build.targets
+		key.snk = key.snk
+		LICENSE.md = LICENSE.md
+		README.md = README.md
+		stylecop.json = stylecop.json
+		version.json = version.json
+		VsixTesting.png = VsixTesting.png
+	EndProjectSection
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VsixTesting.ExtensionInstaller", "src\VsixTesting.ExtensionInstaller\VsixTesting.ExtensionInstaller.csproj", "{51DB3A8A-C551-4D8D-A7A5-FCA2B76DE4B1}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VsixTesting.Xunit", "src\VsixTesting.Xunit\VsixTesting.Xunit.csproj", "{5B2D4187-0A44-4FD1-9B17-4D090F0001D3}"
+	ProjectSection(ProjectDependencies) = postProject
+		{1E08940F-AF0E-47F4-AFE6-34DEFF0C44FE} = {1E08940F-AF0E-47F4-AFE6-34DEFF0C44FE}
+		{51DB3A8A-C551-4D8D-A7A5-FCA2B76DE4B1} = {51DB3A8A-C551-4D8D-A7A5-FCA2B76DE4B1}
+	EndProjectSection
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VsixTesting.Invoker", "src\VsixTesting.Invoker\VsixTesting.Invoker.csproj", "{1E08940F-AF0E-47F4-AFE6-34DEFF0C44FE}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VsixTesting", "src\VsixTesting\VsixTesting.csproj", "{D592D582-B012-425E-8B4D-A2067D040363}"
+	ProjectSection(ProjectDependencies) = postProject
+		{1E08940F-AF0E-47F4-AFE6-34DEFF0C44FE} = {1E08940F-AF0E-47F4-AFE6-34DEFF0C44FE}
+		{51DB3A8A-C551-4D8D-A7A5-FCA2B76DE4B1} = {51DB3A8A-C551-4D8D-A7A5-FCA2B76DE4B1}
+	EndProjectSection
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VsixTesting.Xunit.Tests", "test\VsixTesting.Xunit.Tests\VsixTesting.Xunit.Tests.csproj", "{7367D06A-C4D7-48B8-8FFC-436568B45618}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VsixTesting.Tests", "test\VsixTesting.Tests\VsixTesting.Tests.csproj", "{BEBF4C01-C29C-49D7-93C3-234273940D1C}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{51DB3A8A-C551-4D8D-A7A5-FCA2B76DE4B1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{51DB3A8A-C551-4D8D-A7A5-FCA2B76DE4B1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{51DB3A8A-C551-4D8D-A7A5-FCA2B76DE4B1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{51DB3A8A-C551-4D8D-A7A5-FCA2B76DE4B1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5B2D4187-0A44-4FD1-9B17-4D090F0001D3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5B2D4187-0A44-4FD1-9B17-4D090F0001D3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5B2D4187-0A44-4FD1-9B17-4D090F0001D3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5B2D4187-0A44-4FD1-9B17-4D090F0001D3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1E08940F-AF0E-47F4-AFE6-34DEFF0C44FE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1E08940F-AF0E-47F4-AFE6-34DEFF0C44FE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1E08940F-AF0E-47F4-AFE6-34DEFF0C44FE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1E08940F-AF0E-47F4-AFE6-34DEFF0C44FE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D592D582-B012-425E-8B4D-A2067D040363}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D592D582-B012-425E-8B4D-A2067D040363}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D592D582-B012-425E-8B4D-A2067D040363}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D592D582-B012-425E-8B4D-A2067D040363}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7367D06A-C4D7-48B8-8FFC-436568B45618}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7367D06A-C4D7-48B8-8FFC-436568B45618}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7367D06A-C4D7-48B8-8FFC-436568B45618}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7367D06A-C4D7-48B8-8FFC-436568B45618}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BEBF4C01-C29C-49D7-93C3-234273940D1C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BEBF4C01-C29C-49D7-93C3-234273940D1C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BEBF4C01-C29C-49D7-93C3-234273940D1C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BEBF4C01-C29C-49D7-93C3-234273940D1C}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {EEA30FC1-DE80-4F3A-A71A-FE28650D0700}
+	EndGlobalSection
+EndGlobal
