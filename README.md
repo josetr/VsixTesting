@@ -8,7 +8,7 @@ VsixTesting allows you to easily test your Visual Studio Extensions.
 
 ## Xunit
 
-[![#](https://img.shields.io/nuget/v/VsixTesting.Xunit.svg?style=flat)](http://www.nuget.org/packages/VsixTesting.Xunit/)
+[![#](https://img.shields.io/nuget/v/VsixTesting.Xunit.svg?style=flat)](http://www.nuget.org/packages/VsixTesting.Xunit/) [![Join the chat at https://gitter.im/VsixTesting/Lobby](https://badges.gitter.im/VsixTesting/Lobby.svg)](https://gitter.im/VsixTesting/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 .csproj
 ```xml
