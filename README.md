@@ -1,4 +1,6 @@
 # VsixTesting
+[![#](https://img.shields.io/nuget/v/VsixTesting.Xunit.svg?style=flat)](http://www.nuget.org/packages/VsixTesting.Xunit/)
+[![Join the chat at https://gitter.im/josetr/VsixTesting](https://badges.gitter.im/josetr/VsixTesting.svg)](https://gitter.im/josetr/VsixTesting)
 [![Build status](https://ci.appveyor.com/api/projects/status/4y4ihbei7qeif8a5/branch/master?svg=true)](https://ci.appveyor.com/project/josetr/vsixtesting/branch/master)
 [![codecov](https://codecov.io/gh/josetr/VsixTesting/branch/master/graph/badge.svg)](https://codecov.io/gh/josetr/VsixTesting)
 
@@ -7,8 +9,6 @@ VsixTesting allows you to easily test your Visual Studio Extensions.
 ![Image](VsixTesting.png)
 
 ## Xunit
-
-[![#](https://img.shields.io/nuget/v/VsixTesting.Xunit.svg?style=flat)](http://www.nuget.org/packages/VsixTesting.Xunit/)
 
 .csproj
 ```xml
