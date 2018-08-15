@@ -12,6 +12,27 @@ namespace Xunit
     public class VsTestSettingsAttribute : Attribute, ITestSettings
     {
         /// <inheritdoc />
+        public string VsVersion { get; set; }
+
+        /// <inheritdoc />
+        public string VsRootSuffix { get; set; }
+
+        /// <inheritdoc />
+        public bool VsDebugMixedMode { get; set; }
+
+        /// <inheritdoc />
+        public bool VsSecureChannel { get; set; }
+
+        /// <inheritdoc />
+        public bool VsAllowPreview { get; set; }
+
+        /// <inheritdoc />
+        public string VsExtensionsDirectory { get; set; }
+
+        /// <inheritdoc />
+        public string ScreenshotsDirectory { get; set; }
+
+        /// <inheritdoc />
         public bool UIThread { get; set; }
 
         /// <inheritdoc />

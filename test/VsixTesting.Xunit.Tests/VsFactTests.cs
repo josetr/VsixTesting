@@ -23,7 +23,7 @@ namespace VsixTesting.XunitX.Tests
         void FactWorks()
             => Assert.True(true);
 
-        [VsFact]
+        [VsFact(ReuseInstance = true)]
         void FactRunningInsideVisualStudio()
             => Assert.NotNull(VisualStudioUtil.GetDTE(Process.GetCurrentProcess()));
 

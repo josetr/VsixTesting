@@ -23,29 +23,29 @@ namespace VsixTesting.XunitX.Internal
 
             return new VsTestSettings()
             {
-                VsVersion = GetInstanceArgument(
-                    nameof(IInstanceSettings.Version), defaults.VsVersion),
+                VsVersion = GetTestAttributeArgument(
+                    nameof(ITestSettings.VsVersion), defaults.VsVersion),
 
-                VsRootSuffix = GetInstanceArgument(
-                    nameof(IInstanceSettings.RootSuffix), defaults.VsRootSuffix),
+                VsRootSuffix = GetTestAttributeArgument(
+                    nameof(ITestSettings.VsRootSuffix), defaults.VsRootSuffix),
 
-                VsDebugMixedMode = GetInstanceArgument(
-                    nameof(IInstanceSettings.DebugMixedMode), defaults.VsDebugMixedMode),
+                VsDebugMixedMode = GetTestAttributeArgument(
+                    nameof(ITestSettings.VsDebugMixedMode), defaults.VsDebugMixedMode),
 
-                VsSecureChannel = GetInstanceArgument(
-                    nameof(IInstanceSettings.SecureChannel), defaults.VsSecureChannel),
+                VsSecureChannel = GetTestAttributeArgument(
+                    nameof(ITestSettings.VsSecureChannel), defaults.VsSecureChannel),
 
-                VsAllowPreview = GetInstanceArgument(
-                    nameof(IInstanceSettings.AllowPreview), defaults.VsAllowPreview),
+                VsAllowPreview = GetTestAttributeArgument(
+                    nameof(ITestSettings.VsAllowPreview), defaults.VsAllowPreview),
 
                 VsExtensionsDirectory = NormalizeDirectory(
-                    GetInstanceArgument(
-                        nameof(IInstanceSettings.ExtensionsDirectory),
+                    GetTestAttributeArgument(
+                        nameof(ITestSettings.VsExtensionsDirectory),
                         defaults.VsExtensionsDirectory)),
 
                 ScreenshotsDirectory = NormalizeDirectory(
-                    GetInstanceArgument(
-                        nameof(IInstanceSettings.ScreenshotsDirectory),
+                    GetTestAttributeArgument(
+                        nameof(ITestSettings.ScreenshotsDirectory),
                         defaults.ScreenshotsDirectory)),
 
                 UIThread = GetTestAttributeArgument(
@@ -59,28 +59,20 @@ namespace VsixTesting.XunitX.Internal
             };
 
             TValue GetTestAttributeArgument<TValue>(string argumentName, TValue defaultValue)
-                => GetAttributeArgument<TValue, ITestSettings, ITestSettings, ITestSettings>(
-                    argumentName, defaultValue);
-
-            TValue GetInstanceArgument<TValue>(string argumentName, TValue defaultValue)
-                => GetAttributeArgument<TValue, IInstanceSettings, IInstanceSettings, IInstanceSettings>(
-                    argumentName, defaultValue);
-
-            TValue GetAttributeArgument<TValue, TMethodAttrType, TClassAttrType, TAssemblyAttrType>(string argumentName, TValue defaultValue)
             {
-                var methodAttr = testMethod.Method.GetCustomAttributes(typeof(TMethodAttrType)).FirstOrDefault();
+                var methodAttr = testMethod.Method.GetCustomAttributes(typeof(ITestSettings)).FirstOrDefault();
                 if (methodAttr?.GetNamedArgument<object>(argumentName) is TValue methodValue && IsNamedArg(methodAttr))
                     return methodValue;
 
-                var classAttr = testMethod.TestClass.Class.GetCustomAttributes(typeof(TClassAttrType)).FirstOrDefault();
+                var classAttr = testMethod.TestClass.Class.GetCustomAttributes(typeof(ITestSettings)).FirstOrDefault();
                 if (classAttr?.GetNamedArgument<object>(argumentName) is TValue classValue && IsNamedArg(classAttr))
                     return classValue;
 
-                var collectionAttr = testMethod.TestClass.TestCollection.CollectionDefinition?.GetCustomAttributes(typeof(TClassAttrType)).FirstOrDefault();
+                var collectionAttr = testMethod.TestClass.TestCollection.CollectionDefinition?.GetCustomAttributes(typeof(ITestSettings)).FirstOrDefault();
                 if (collectionAttr?.GetNamedArgument<object>(argumentName) is TValue collectionValue && IsNamedArg(collectionAttr))
                     return collectionValue;
 
-                var assemblyAttr = testMethod.TestClass.Class.Assembly.GetCustomAttributes(typeof(TAssemblyAttrType)).FirstOrDefault();
+                var assemblyAttr = testMethod.TestClass.Class.Assembly.GetCustomAttributes(typeof(ITestSettings)).FirstOrDefault();
                 if (assemblyAttr?.GetNamedArgument<object>(argumentName) is TValue assemblyValue && IsNamedArg(assemblyAttr))
                     return assemblyValue;
 

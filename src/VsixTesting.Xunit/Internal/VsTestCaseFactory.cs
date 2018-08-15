@@ -88,7 +88,7 @@ namespace VsixTesting.XunitX.Internal
             {
                 if (!settings.VsAllowPreview && installation.Name.Contains("-pre"))
                 {
-                    output?.AppendLine($"Skipping {installation.Path} because {nameof(Xunit.VsInstanceAttribute.AllowPreview)} is set to {false}.");
+                    output?.AppendLine($"Skipping {installation.Path} because {nameof(Xunit.VsTestSettingsAttribute.VsAllowPreview)} is set to {false}.");
                     continue;
                 }
 

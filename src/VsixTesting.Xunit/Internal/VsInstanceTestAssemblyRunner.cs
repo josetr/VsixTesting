@@ -53,7 +53,6 @@ namespace VsixTesting.XunitX.Internal
             InstanceId = testCases.First().InstanceId;
             var vsTestCases = testCases.OfType<VsTestCase>();
             Settings = vsTestCases.First().Settings;
-            Settings.VsResetSettings = vsTestCases.Any(c => c.Settings.VsResetSettings);
             Settings.VsDebugMixedMode = vsTestCases.Any(c => c.Settings.VsDebugMixedMode);
             InstancePath = vsTestCases.First().InstancePath;
         }
