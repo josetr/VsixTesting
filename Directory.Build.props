@@ -21,7 +21,7 @@
     <PackageProjectUrl>https://github.com/josetr/VsixTesting</PackageProjectUrl>
     <RepositoryUrl>https://github.com/josetr/VsixTesting</RepositoryUrl> 
     <PackageTags>VisualStudio, Extension, Testing, Xunit, VSIX</PackageTags>
-    <Copyright>Copyright ©2018 Jose Torres</Copyright>
+    <Copyright>© Jose Torres. All Rights Reserved.</Copyright>
     <Authors>Jose Torres</Authors>
     <Description>VsixTesting allows you to easily test your Visual Studio Extensions.</Description>
   </PropertyGroup>
