@@ -19,11 +19,11 @@ namespace VsixTesting.XunitX.Tests
 
     public class VsFactTests
     {
-        [VsFact(ExtensionsDirectory = "Extensions")]
+        [VsFact]
         void FactWorks()
             => Assert.True(true);
 
-        [VsFact(ExtensionsDirectory = "/Extensions/")]
+        [VsFact]
         void FactRunningInsideVisualStudio()
             => Assert.NotNull(VisualStudioUtil.GetDTE(Process.GetCurrentProcess()));
 
