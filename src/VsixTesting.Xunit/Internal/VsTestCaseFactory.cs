@@ -67,7 +67,7 @@ namespace VsixTesting.XunitX.Internal
 
             foreach (var installation in installations)
             {
-                var instanceId = $"{VersionUtil.GetYear(installation.Version)} {testSettings.VsRootSuffix}";
+                var instanceId = $"{VersionUtil.GetYear(installation.Version)} {testSettings.RootSuffix}";
                 if (!testSettings.ReuseInstance)
                 {
                     var fullMethodName = testMethod.TestClass.Class.ToRuntimeType() + testMethod.Method.Name;
@@ -82,19 +82,19 @@ namespace VsixTesting.XunitX.Internal
         {
             var majorVersions = new HashSet<int>();
 
-            foreach (var installation in settings.VsPreferLowestMinorVersion == false
+            foreach (var installation in settings.PreferLowestMinorVersion == false
                 ? installations.OrderByDescending(x => x.Version)
                 : installations.OrderBy(x => x.Version))
             {
-                if (!settings.VsAllowPreview && installation.Name.Contains("-pre"))
+                if (!settings.AllowPreview && installation.Name.Contains("-pre"))
                 {
-                    output?.AppendLine($"Skipping {installation.Path} because {nameof(Xunit.VsInstanceAttribute.AllowPreview)} is set to {false}.");
+                    output?.AppendLine($"Skipping {installation.Path} because {nameof(ITestSettings.AllowPreview)} is set to false.");
                     continue;
                 }
 
-                if (!settings.VsSupportedVersionRanges.Any(range => installation.Version >= range.Minimum && installation.Version <= range.Maximum))
+                if (!settings.SupportedVersionRanges.Any(range => installation.Version >= range.Minimum && installation.Version <= range.Maximum))
                 {
-                    output?.AppendLine($"Skipping {installation.Path} because the version {installation.Version} is not within any specified version range {string.Join(";", settings.VsSupportedVersionRanges)}.");
+                    output?.AppendLine($"Skipping {installation.Path} because the version {installation.Version} is not within any specified version range {string.Join(";", settings.SupportedVersionRanges)}.");
                     continue;
                 }
 

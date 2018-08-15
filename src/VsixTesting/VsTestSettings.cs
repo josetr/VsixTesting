@@ -11,22 +11,21 @@ namespace VsixTesting
     internal class VsTestSettings : ITestSettings
     {
         internal static readonly VsTestSettings Defaults = new VsTestSettings();
-        public string VsVersion { get; set; } = "2012-";
-        public string VsRootSuffix { get; set; } = "Exp";
-        public int VsLaunchTimeoutInSeconds { get; set; } = 45;
-        public bool VsDebugMixedMode { get; set; } = false;
-        public bool VsResetSettings { get; set; } = false;
-        public bool VsSecureChannel { get; set; } = false;
-        public bool VsAllowPreview { get; set; } = false;
-        public bool VsPreferLowestMinorVersion { get; set; } = true;
-        public string VsExtensionsDirectory { get; set; } = string.Empty;
+        public string Version { get; set; } = "2012-";
+        public string RootSuffix { get; set; } = "Exp";
+        public int LaunchTimeoutInSeconds { get; set; } = 45;
+        public bool DebugMixedMode { get; set; } = false;
+        public bool ResetSettings { get; set; } = false;
+        public bool SecureChannel { get; set; } = false;
+        public bool AllowPreview { get; set; } = false;
+        public bool PreferLowestMinorVersion { get; set; } = true;
+        public string ExtensionsDirectory { get; set; } = string.Empty;
         public string ScreenshotsDirectory { get; set; } = "Screenshots";
         public bool ReuseInstance { get; set; } = true;
         public bool TakeScreenshotOnFailure { get; set; } = false;
         public bool UIThread { get; set; } = false;
 
-        public IEnumerable<VersionRange> VsSupportedVersionRanges => VsVersion.Split(';').Select(v => new VersionRange(v));
-        public string[] GetExtensionsToInstall() => Directory.GetFiles(VsExtensionsDirectory, "*.vsix");
-        public TimeSpan GetLaunchTimeout() => TimeSpan.FromSeconds(VsLaunchTimeoutInSeconds);
+        public IEnumerable<VersionRange> SupportedVersionRanges => Version.Split(';').Select(v => new VersionRange(v));
+        public TimeSpan GetLaunchTimeout() => TimeSpan.FromSeconds(LaunchTimeoutInSeconds);
     }
 }

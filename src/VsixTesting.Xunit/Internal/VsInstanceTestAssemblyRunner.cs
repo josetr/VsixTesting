@@ -53,8 +53,8 @@ namespace VsixTesting.XunitX.Internal
             InstanceId = testCases.First().InstanceId;
             var vsTestCases = testCases.OfType<VsTestCase>();
             Settings = vsTestCases.First().Settings;
-            Settings.VsResetSettings = vsTestCases.Any(c => c.Settings.VsResetSettings);
-            Settings.VsDebugMixedMode = vsTestCases.Any(c => c.Settings.VsDebugMixedMode);
+            Settings.ResetSettings = vsTestCases.Any(c => c.Settings.ResetSettings);
+            Settings.DebugMixedMode = vsTestCases.Any(c => c.Settings.DebugMixedMode);
             InstancePath = vsTestCases.First().InstancePath;
         }
 
@@ -103,14 +103,16 @@ namespace VsixTesting.XunitX.Internal
             AppDomain.CurrentDomain.AssemblyResolve += CurrentDomain_AssemblyResolve;
 
             diagnostics = CreateDiagnostics(cts);
+            if (testCases.OfType<VsTestCase>().GroupBy(c => c.Settings.SecureChannel).Count() >= 2)
+                throw new Exception($"All test methods sharing the same Visual Studio Instance must also use the same value for {nameof(ITestSettings.SecureChannel)}.");
             var installation = Installations.Value.First(i => i.ApplicationPath == InstancePath);
-            var hive = new VsHive(installation, Settings.VsRootSuffix);
-            await VsInstance.Prepare(hive, Settings.GetExtensionsToInstall(), Settings.VsResetSettings, diagnostics);
+            var hive = new VsHive(installation, Settings.RootSuffix);
+            await VsInstance.Prepare(hive, GetExtensionsToInstall(), Settings.ResetSettings, diagnostics);
             instance = await VsInstance.Launch(hive, Settings.GetLaunchTimeout(), diagnostics);
             if (Debugger.IsAttached)
-                await VsInstance.AttachDebugger(instance.Process, Settings.VsDebugMixedMode, diagnostics);
+                await VsInstance.AttachDebugger(instance.Process, Settings.DebugMixedMode, diagnostics);
             instance.SetAssemblyResolver(TestAssemblyDirectory);
-            rmt = instance.GetOrCreateSingletonService<Rmt>("VsixTesting.Xunit", Settings.VsSecureChannel);
+            rmt = instance.GetOrCreateSingletonService<Rmt>("VsixTesting.Xunit", Settings.SecureChannel);
             remoteTestAssemblyRunner = CreateRemoteTestAssemblyRunner(cts);
             initialized = true;
         }
@@ -202,6 +204,16 @@ namespace VsixTesting.XunitX.Internal
                 Skipped = finishedTestCases.Sum(ftrs => ftrs.Value.Skipped),
                 Time = finishedTestCases.Sum(ftrs => ftrs.Value.Time),
             };
+        }
+
+        private IEnumerable<string> GetExtensionsToInstall()
+        {
+            var extensionDirs = testCases.OfType<VsTestCase>()
+                .Select(tc => tc.Settings.ExtensionsDirectory).Distinct()
+                .Select(relativeDir => Path.GetFullPath(relativeDir)).Distinct()
+                .Where(absoluteDir => Directory.Exists(absoluteDir));
+
+            return extensionDirs.Select(absoluteDir => Directory.GetFiles(absoluteDir, "*.vsix")).SelectMany(extensionPath => extensionPath);
         }
 
         private Assembly CurrentDomain_AssemblyResolve(object sender, ResolveEventArgs args)
