@@ -40,7 +40,7 @@ namespace VsixTesting.XunitX.Tests
 
             var testSettings = new VsTestSettings
             {
-                VsPreferLowestMinorVersion = preferLowest,
+                PreferLowestMinorVersion = preferLowest,
             };
             Assert.Equal(expectedMinorVersion, VsTestCaseFactory.FilterInstallations(installations, testSettings).First().Version.Minor);
         }

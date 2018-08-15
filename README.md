@@ -49,8 +49,8 @@ namespace Tests
 ### Test Settings 
 
 [ITestSettings.cs](src/VsixTesting/ITestSettings.cs) implemented by
- * [VsTestSettingsAttribute.cs](src/VsixTesting.Xunit/VsTestSettingsAttribute.cs) (for assemblies/collections/classes)
  * [VsFactAttribute.cs](src/VsixTesting.Xunit/VsFactAttribute.cs) (for methods)
+ * [VsTestSettingsAttribute.cs](src/VsixTesting.Xunit/VsTestSettingsAttribute.cs) (for classes/collections/assemblies)
 
 ## License
 

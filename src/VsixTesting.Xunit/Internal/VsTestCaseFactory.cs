@@ -82,7 +82,7 @@ namespace VsixTesting.XunitX.Internal
         {
             var majorVersions = new HashSet<int>();
 
-            foreach (var installation in settings.VsPreferLowestMinorVersion == false
+            foreach (var installation in settings.PreferLowestMinorVersion == false
                 ? installations.OrderByDescending(x => x.Version)
                 : installations.OrderBy(x => x.Version))
             {

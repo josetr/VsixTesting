@@ -53,6 +53,7 @@ namespace VsixTesting.XunitX.Internal
             InstanceId = testCases.First().InstanceId;
             var vsTestCases = testCases.OfType<VsTestCase>();
             Settings = vsTestCases.First().Settings;
+            Settings.ResetSettings = vsTestCases.Any(c => c.Settings.ResetSettings);
             Settings.DebugMixedMode = vsTestCases.Any(c => c.Settings.DebugMixedMode);
             InstancePath = vsTestCases.First().InstancePath;
         }
@@ -105,7 +106,7 @@ namespace VsixTesting.XunitX.Internal
                 throw new Exception($"All test methods targetting the same Visual Studio Instance must have the same {nameof(ITestSettings.SecureChannel)} value when {nameof(ITestSettings.ReuseInstance)} is set to true.");
             var installation = Installations.Value.First(i => i.ApplicationPath == InstancePath);
             var hive = new VsHive(installation, Settings.RootSuffix);
-            await VsInstance.Prepare(hive, GetExtensionsToInstall(), Settings.VsResetSettings, diagnostics);
+            await VsInstance.Prepare(hive, GetExtensionsToInstall(), Settings.ResetSettings, diagnostics);
             instance = await VsInstance.Launch(hive, Settings.GetLaunchTimeout(), diagnostics);
             if (Debugger.IsAttached)
                 await VsInstance.AttachDebugger(instance.Process, Settings.DebugMixedMode, diagnostics);
