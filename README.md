@@ -15,7 +15,7 @@ VsixTesting allows you to easily test your Visual Studio Extensions.
 <ItemGroup>
     <PackageReference Include="xunit" Version="2.3.1" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.3.1" />
-    <PackageReference Include="VsixTesting.Xunit" Version="0.1.3-beta" />
+    <PackageReference Include="VsixTesting.Xunit" Version="0.1.4-beta" />
     <PackageReference Include="VSSDK.Shell.11" Version="11.0.4" />
 </ItemGroup>
 ```
