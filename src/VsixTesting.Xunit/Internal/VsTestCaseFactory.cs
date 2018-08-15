@@ -67,7 +67,7 @@ namespace VsixTesting.XunitX.Internal
 
             foreach (var installation in installations)
             {
-                var instanceId = $"{VersionUtil.GetYear(installation.Version)} {testSettings.VsRootSuffix}";
+                var instanceId = $"{VersionUtil.GetYear(installation.Version)} {testSettings.RootSuffix}";
                 if (!testSettings.ReuseInstance)
                 {
                     var fullMethodName = testMethod.TestClass.Class.ToRuntimeType() + testMethod.Method.Name;
@@ -86,9 +86,9 @@ namespace VsixTesting.XunitX.Internal
                 ? installations.OrderByDescending(x => x.Version)
                 : installations.OrderBy(x => x.Version))
             {
-                if (!settings.VsAllowPreview && installation.Name.Contains("-pre"))
+                if (!settings.AllowPreview && installation.Name.Contains("-pre"))
                 {
-                    output?.AppendLine($"Skipping {installation.Path} because {nameof(Xunit.VsTestSettingsAttribute.VsAllowPreview)} is set to {false}.");
+                    output?.AppendLine($"Skipping {installation.Path} because {nameof(Xunit.VsTestSettingsAttribute.AllowPreview)} is set to {false}.");
                     continue;
                 }
 

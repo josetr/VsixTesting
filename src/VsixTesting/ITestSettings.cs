@@ -11,31 +11,31 @@ namespace VsixTesting
         /// <remarks>
         /// The full version format used in the vsixmanifest is supported.
         /// </remarks>
-        string VsVersion { get; set; }
+        string Version { get; set; }
 
         /// <summary>
         /// Gets or sets the Visual Studio Root Suffix.
         /// The default value is `Exp` which targets the default Visual Studio Experimental Instance.
         /// See <see href="https://docs.microsoft.com/en-us/visualstudio/extensibility/the-experimental-instance" /> for more information.
         /// </summary>
-        string VsRootSuffix { get; set; }
+        string RootSuffix { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether the mixed 'Managed/Native' debugging engine should be used to attach/debug the remote Visual Studio Instance.
         /// The default is <see langword="false" />.
         /// </summary>
-        bool VsDebugMixedMode { get; set; }
+        bool DebugMixedMode { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether the channel used to communicate to the remote Visual Studio Instance must be secure.
         /// The default value is <see langword="false" /> because if it's set to <see langword="true" /> then "xunit.AppDomain" must be set to <see langword="denied" /> as well.
         /// </summary>
-        bool VsSecureChannel { get; set; }
+        bool SecureChannel { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether Visual Studio Preview versions are allowed.
         /// </summary>
-        bool VsAllowPreview { get; set; }
+        bool AllowPreview { get; set; }
 
         /// <summary>
         /// Gets or sets a directory path containing .vsix packages to install before launching the Visual Studio Instance.
@@ -43,7 +43,7 @@ namespace VsixTesting
         /// <remarks>
         /// The path is relative to the tested assembly, unless an absolute path is given.
         /// </remarks>
-        string VsExtensionsDirectory { get; set; }
+        string ExtensionsDirectory { get; set; }
 
         /// <summary>
         /// Gets or sets a directory path where screenshots will be stored when an error occurs within the Visual Studio Instance.

@@ -7,7 +7,6 @@ namespace VsixTesting.XunitX.Internal
     using System.Linq;
     using System.Reflection;
     using VsixTesting;
-    using Xunit;
     using Xunit.Abstractions;
     using Xunit.Sdk;
 
@@ -23,25 +22,25 @@ namespace VsixTesting.XunitX.Internal
 
             return new VsTestSettings()
             {
-                VsVersion = GetTestAttributeArgument(
-                    nameof(ITestSettings.VsVersion), defaults.VsVersion),
+                Version = GetTestAttributeArgument(
+                    nameof(ITestSettings.Version), defaults.Version),
 
-                VsRootSuffix = GetTestAttributeArgument(
-                    nameof(ITestSettings.VsRootSuffix), defaults.VsRootSuffix),
+                RootSuffix = GetTestAttributeArgument(
+                    nameof(ITestSettings.RootSuffix), defaults.RootSuffix),
 
-                VsDebugMixedMode = GetTestAttributeArgument(
-                    nameof(ITestSettings.VsDebugMixedMode), defaults.VsDebugMixedMode),
+                DebugMixedMode = GetTestAttributeArgument(
+                    nameof(ITestSettings.DebugMixedMode), defaults.DebugMixedMode),
 
-                VsSecureChannel = GetTestAttributeArgument(
-                    nameof(ITestSettings.VsSecureChannel), defaults.VsSecureChannel),
+                SecureChannel = GetTestAttributeArgument(
+                    nameof(ITestSettings.SecureChannel), defaults.SecureChannel),
 
-                VsAllowPreview = GetTestAttributeArgument(
-                    nameof(ITestSettings.VsAllowPreview), defaults.VsAllowPreview),
+                AllowPreview = GetTestAttributeArgument(
+                    nameof(ITestSettings.AllowPreview), defaults.AllowPreview),
 
-                VsExtensionsDirectory = NormalizeDirectory(
+                ExtensionsDirectory = NormalizeDirectory(
                     GetTestAttributeArgument(
-                        nameof(ITestSettings.VsExtensionsDirectory),
-                        defaults.VsExtensionsDirectory)),
+                        nameof(ITestSettings.ExtensionsDirectory),
+                        defaults.ExtensionsDirectory)),
 
                 ScreenshotsDirectory = NormalizeDirectory(
                     GetTestAttributeArgument(

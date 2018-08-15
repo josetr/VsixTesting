@@ -15,22 +15,22 @@ namespace Xunit
     public class VsFactAttribute : FactAttribute, ITestSettings
     {
         /// <inheritdoc />
-        public string VsVersion { get; set; }
+        public string Version { get; set; }
 
         /// <inheritdoc />
-        public string VsRootSuffix { get; set; }
+        public string RootSuffix { get; set; }
 
         /// <inheritdoc />
-        public bool VsDebugMixedMode { get; set; }
+        public bool DebugMixedMode { get; set; }
 
         /// <inheritdoc />
-        public bool VsSecureChannel { get; set; }
+        public bool SecureChannel { get; set; }
 
         /// <inheritdoc />
-        public bool VsAllowPreview { get; set; }
+        public bool AllowPreview { get; set; }
 
         /// <inheritdoc />
-        public string VsExtensionsDirectory { get; set; }
+        public string ExtensionsDirectory { get; set; }
 
         /// <inheritdoc />
         public string ScreenshotsDirectory { get; set; }

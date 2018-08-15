@@ -18,7 +18,7 @@ namespace VsixTesting.XunitX.Tests
             var installations = new[] { new VsInstallation(new Version(15, 8), string.Empty, "VisualStudioPreview/15.8.0-pre.2.0+27729.1") };
             var testSettings = new VsTestSettings
             {
-                VsAllowPreview = allow,
+                AllowPreview = allow,
             };
 
             if (allow)
