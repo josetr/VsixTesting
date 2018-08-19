@@ -2,8 +2,11 @@
 
 namespace VsixTesting.XunitX
 {
+    using System;
     using System.Collections.Generic;
+    using System.Linq;
     using VsixTesting.XunitX.Internal;
+    using VsixTesting.XunitX.Internal.Utilities;
     using Xunit.Abstractions;
     using Xunit.Sdk;
 
@@ -12,6 +15,18 @@ namespace VsixTesting.XunitX
         public VsTheoryDiscoverer(IMessageSink diagnosticMessageSink)
             : base(diagnosticMessageSink)
         {
+        }
+
+        public override IEnumerable<IXunitTestCase> Discover(ITestFrameworkDiscoveryOptions discoveryOptions, ITestMethod testMethod, IAttributeInfo theoryAttribute)
+        {
+            try
+            {
+                return base.Discover(discoveryOptions, testMethod, theoryAttribute).ToArray();
+            }
+            catch (Exception exception)
+            {
+                return new IXunitTestCase[] { new ExceptionTestCase(exception, DiagnosticMessageSink, discoveryOptions.MethodDisplayOrDefault(), testMethod) };
+            }
         }
 
         protected override IEnumerable<IXunitTestCase> CreateTestCasesForDataRow(ITestFrameworkDiscoveryOptions discoveryOptions, ITestMethod testMethod, IAttributeInfo theoryAttribute, object[] dataRow)
