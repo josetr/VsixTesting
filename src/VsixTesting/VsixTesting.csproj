@@ -5,8 +5,7 @@
     <EmbedResourceDateTime>true</EmbedResourceDateTime>
     <IsPackable>false</IsPackable>
     <IsMainProject>true</IsMainProject>
-    <DebugType>full</DebugType>
-    <DebugSymbols>true</DebugSymbols>
+    <DebugType>embedded</DebugType>
     <RunCodeCoverage>false</RunCodeCoverage>
   </PropertyGroup>
 

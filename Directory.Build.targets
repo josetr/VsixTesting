@@ -5,9 +5,11 @@
     <OpenCoverVersion>4.6.519</OpenCoverVersion>
     <CodeCovVersion>1.0.5</CodeCovVersion>
     <ReportGeneratorVersion>3.1.2</ReportGeneratorVersion>
+    <Pdb2PdbVersion>1.1.0-beta1-63019-01</Pdb2PdbVersion>
     <OpenCoverPath>$(GlobalPackagesPath)opencover\$(OpenCoverVersion)\tools\opencover.console.exe</OpenCoverPath>
     <CodeCovPath>$(GlobalPackagesPath)codecov\$(CodeCovVersion)\tools\codecov.exe</CodeCovPath>
     <ReportGeneratorPath>$(GlobalPackagesPath)reportgenerator\$(ReportGeneratorVersion)\tools\ReportGenerator.exe</ReportGeneratorPath>
+    <Pdb2PdbPath>$(GlobalPackagesPath)pdb2pdb\$(Pdb2PdbVersion)\tools\Pdb2Pdb.exe</Pdb2PdbPath>
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
   </PropertyGroup>
 
@@ -16,6 +18,7 @@
     <PackageReference Include="OpenCover" Version="$(OpenCoverVersion)" PrivateAssets="all" />
     <PackageReference Include="Codecov" Version="$(CodeCovVersion)" PrivateAssets="all" />
     <PackageReference Include="ReportGenerator" Version="$(ReportGeneratorVersion)" PrivateAssets="all" />
+    <PackageReference Include="Pdb2Pdb" Version="$(Pdb2PdbVersion)" PrivateAssets="all" />
   </ItemGroup>
 
   <ItemGroup Condition="$(IsTestProject) == true">
@@ -66,6 +69,10 @@ $(XunitConsolePathX86) ^
   -reporttypes html
 
 $(CoverageOutputHtmlDir)\index.htm' />
+  </Target>
+
+  <Target Name="ExtractPdb" AfterTargets="Build" Condition="$(IsMainProject) == true AND $(RunCodeCoverage) == true AND '$(DebugType)' == 'embedded'">
+    <Exec Command="$(Pdb2PdbPath) $(OutputPath)$(AssemblyName).dll /out $(OutputPath)$(AssemblyName).pdb" />
   </Target>
 
   <!-- InheritDoc -->

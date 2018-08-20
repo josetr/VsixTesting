@@ -5,8 +5,7 @@
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <IsPackable>true</IsPackable>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <DebugType>full</DebugType>
-    <DebugSymbols>true</DebugSymbols>
+    <DebugType>embedded</DebugType>
     <InheritDoc>true</InheritDoc>
     <RunCodeCoverage>true</RunCodeCoverage>
     <GenerateHtmlCoverageReport>true</GenerateHtmlCoverageReport>
