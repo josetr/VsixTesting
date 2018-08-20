@@ -13,6 +13,13 @@ install:
 build_script:
 - msbuild /v:m /nologo
 
+deploy:
+  provider: NuGet
+  server: https://www.myget.org/F/vsixtesting/api/v2/package
+  api_key:
+    secure: 7fpFGKl529yWoO7qD5t+quDen2GSeUfdsuGOYH3zMSI/nwDEY9bvyiOl/xOoaajX
+  artifact: /.*\.nupkg/
+
 artifacts:
 - path: '**\TestResults.xml'
 - path: '**\*.nupkg'

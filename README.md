@@ -3,10 +3,11 @@
 [![Join the chat at https://gitter.im/josetr/VsixTesting](https://badges.gitter.im/josetr/VsixTesting.svg)](https://gitter.im/josetr/VsixTesting)
 [![Build status](https://ci.appveyor.com/api/projects/status/github/josetr/VsixTesting?branch=master&svg=true)](https://ci.appveyor.com/project/josetr/vsixtesting/branch/master)
 [![codecov](https://codecov.io/gh/josetr/VsixTesting/branch/master/graph/badge.svg)](https://codecov.io/gh/josetr/VsixTesting)
+[![MyGet](https://img.shields.io/myget/vsixtesting/v/VsixTesting.Xunit.svg)](https://www.myget.org/feed/vsixtesting/package/nuget/VsixTesting.Xunit)
 
 VsixTesting allows you to easily test your Visual Studio Extensions.
 
-![Image](VsixTesting.png)
+![Image](https://raw.githubusercontent.com/josetr/VsixTesting/master/VsixTesting.png)
 
 ## Xunit
 
