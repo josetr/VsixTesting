@@ -85,17 +85,6 @@ $(CoverageOutputHtmlDir)\index.htm' />
     <Exec Command="InheritDoc.exe -o" WorkingDirectory="$(OutputPath)" />
   </Target>
 
-  <!-- CopyProjectReferencesToPackage -->
-  <PropertyGroup Condition="$(CopyProjectReferencesToPackage) == true">
-    <TargetsForTfmSpecificBuildOutput>$(TargetsForTfmSpecificBuildOutput);CopyProjectReferencesToPackageTarget</TargetsForTfmSpecificBuildOutput>
-  </PropertyGroup>
-
-  <Target Name="CopyProjectReferencesToPackageTarget" DependsOnTargets="ResolveReferences">
-    <ItemGroup>
-      <BuildOutputInPackage Include="@(ReferenceCopyLocalPaths-&gt;WithMetadataValue('ReferenceSourceTarget', 'ProjectReference'))" />
-    </ItemGroup>
-  </Target>
-
   <!-- EmbedResourceDateTimeTask -->
   <UsingTask TaskName="EmbedResourceDateTimeTask" TaskFactory="CodeTaskFactory" AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.v4.0.dll">
     <ParameterGroup>
