@@ -25,7 +25,7 @@
   <ItemGroup>
     <PackageReference Include="System.ValueTuple" Version="4.4.0" />
     <PackageReference Include="EnvDTE" Version="8.0.2" />
-    <PackageReference Include="Ben.Demystifier" Version="0.1.1" />
+    <PackageReference Include="Ben.Demystifier.VS" Version="0.1.1" PrivateAssets="all" />
     <PackageReference Include="xunit.extensibility.core" Version="$(XunitVersion)" />
     <PackageReference Include="xunit.runner.utility" Version="$(XunitVersion)" PrivateAssets="all" />
     <PackageReference Include="xunit.extensibility.execution" Version="$(XunitVersion)" PrivateAssets="all" />
@@ -33,7 +33,7 @@
     <PackageReference Include="Nerdbank.GitVersioning" Version="2.1.65" PrivateAssets="all" />
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0-beta-63127-02" PrivateAssets="All"/>
   </ItemGroup>
-
+  
   <ItemGroup>
     <Compile Include="$(SolutionDir)\src\VsixTesting\GlobalSuppressions.cs" />
   </ItemGroup>
@@ -48,6 +48,7 @@
   <Target Name="CopyOutputPathAssembliesToPackage" DependsOnTargets="ResolveReferences">
     <ItemGroup>
       <BuildOutputInPackage Include="$(OutputPath)VsixTesting.dll" />
+      <BuildOutputInPackage Include="$(OutputPath)Ben.Demystifier.VS.dll" />
     </ItemGroup>
   </Target>
   
