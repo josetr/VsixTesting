@@ -6,10 +6,12 @@
     <CodeCovVersion>1.0.5</CodeCovVersion>
     <ReportGeneratorVersion>3.1.2</ReportGeneratorVersion>
     <Pdb2PdbVersion>1.1.0-beta1-63019-01</Pdb2PdbVersion>
+    <InheritDocVersion>1.2.0.1</InheritDocVersion>
     <OpenCoverPath>$(GlobalPackagesPath)opencover\$(OpenCoverVersion)\tools\opencover.console.exe</OpenCoverPath>
     <CodeCovPath>$(GlobalPackagesPath)codecov\$(CodeCovVersion)\tools\codecov.exe</CodeCovPath>
     <ReportGeneratorPath>$(GlobalPackagesPath)reportgenerator\$(ReportGeneratorVersion)\tools\ReportGenerator.exe</ReportGeneratorPath>
     <Pdb2PdbPath>$(GlobalPackagesPath)pdb2pdb\$(Pdb2PdbVersion)\tools\Pdb2Pdb.exe</Pdb2PdbPath>
+    <InheritDocPath>$(GlobalPackagesPath)InheritDoc\$(InheritDocVersion)\tools\InheritDoc.exe</InheritDocPath>
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
   </PropertyGroup>
 
@@ -77,12 +79,11 @@ $(CoverageOutputHtmlDir)\index.htm' />
 
   <!-- InheritDoc -->
   <ItemGroup Condition="$(InheritDoc) == true">
-    <PackageReference Include="InheritDoc" Version="1.2.0.1" PrivateAssets="all" />
-    <PackageReference Include="InheritDocLib" Version="1.2.0.1" PrivateAssets="all" />
+    <PackageReference Include="InheritDoc" Version="$(InheritDocVersion)" PrivateAssets="all" ExcludeAssets="all" />
   </ItemGroup>
 
   <Target Name="InheritDocTarget" AfterTargets="AfterBuild" Condition="$(InheritDoc) == true">
-    <Exec Command="InheritDoc.exe -o" WorkingDirectory="$(OutputPath)" />
+    <Exec Command="$(InheritDocPath) -o" WorkingDirectory="$(OutputPath)" />
   </Target>
 
   <!-- EmbedResourceDateTimeTask -->
