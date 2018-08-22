@@ -19,7 +19,7 @@
   <ItemGroup>
     <Reference Include="PresentationFramework" />
     <Reference Include="System.Runtime.Remoting" />
-    <PackageReference Include="System.ValueTuple" Version="4.4.0" />
+    <PackageReference Include="System.ValueTuple" Version="4.3.0" />
     <PackageReference Include="EnvDTE" Version="8.0.2" />
     <PackageReference Include="EnvDTE80" Version="8.0.3" PrivateAssets="all" />
     <PackageReference Include="Microsoft.VisualStudio.Setup.Configuration.Interop" Version="1.16.30" PrivateAssets="all" />
