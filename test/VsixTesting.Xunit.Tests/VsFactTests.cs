@@ -110,6 +110,15 @@ namespace VsixTesting.XunitX.Tests
                 await Task.Yield();
                 Assert.IsType<DispatcherSynchronizationContext>(SynchronizationContext.Current);
             }
+
+            [VsFact(Version = "2017")]
+            public void CanFindMPF14JoinableTaskFactory()
+            {
+                // Check we can retrieve ThreadHelper.JoinableTaskFactory from Microsoft.VisualStudio.Shell.14.0 when running in Visual Studio 2017
+                var type = Type.GetType("Microsoft.VisualStudio.Shell.ThreadHelper, Microsoft.VisualStudio.Shell.14.0, Version=14.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a", true);
+                var joinableTaskFactory = type.GetProperty("JoinableTaskFactory").GetValue(null);
+                Assert.NotNull(joinableTaskFactory);
+            }
         }
 
         public class BackgroundThreadTests
