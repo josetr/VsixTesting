@@ -9,10 +9,8 @@ namespace VsixTesting.Invoker
 
     [PackageRegistration(UseManagedResourcesOnly = true)]
     [ProvideAutomationObject(AutomationObjectName)]
-#if DEBUG
     [ProvideAutoLoad(VSConstants.UICONTEXT.SolutionExists_string)]
     [ProvideAutoLoad(VSConstants.UICONTEXT.NoSolution_string)]
-#endif
     public sealed class InvokerPackage : Package
     {
         private const string AutomationObjectName = "VsixTesting.Invoker";
