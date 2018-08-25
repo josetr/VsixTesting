@@ -5,6 +5,7 @@ namespace VsixTesting.Invoker
     using System;
     using Microsoft.VisualStudio;
     using Microsoft.VisualStudio.Shell;
+    using EnvDTE;
 
     [PackageRegistration(UseManagedResourcesOnly = true)]
     [ProvideAutomationObject(AutomationObjectName)]
@@ -24,9 +25,24 @@ namespace VsixTesting.Invoker
             return base.GetAutomationObject(name);
         }
 
-#if DEBUG
         protected override void Initialize()
-            => base.Initialize();
-#endif
+        {
+            InitializeThreadHelper();
+        }
+
+        private void InitializeThreadHelper()
+        {
+            if (GetService(typeof(DTE)) is DTE dte)
+            {
+                // Initialize the ThreadHelper.JoinableTaskFactory property on UI thread for Microsoft.VisualStudio.Shell.14.0 and above
+                var majorVersion = new Version(dte.Version).Major;
+                for (var shellVersion = majorVersion; shellVersion >= 14; shellVersion--)
+                {
+                    var threadHelperTypeName = $"Microsoft.VisualStudio.Shell.ThreadHelper, Microsoft.VisualStudio.Shell.{shellVersion}.0, Version={shellVersion}.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a";
+                    var joinableTaskFactoryProperty = Type.GetType(threadHelperTypeName, false)?.GetProperty("JoinableTaskFactory");
+                    joinableTaskFactoryProperty?.GetValue(null);
+                }
+            }
+        }
     }
 }
