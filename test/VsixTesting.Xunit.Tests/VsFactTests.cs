@@ -111,7 +111,7 @@ namespace VsixTesting.XunitX.Tests
                 Assert.IsType<DispatcherSynchronizationContext>(SynchronizationContext.Current);
             }
 
-            [VsFact(Version = "2017")]
+            [VsFact(Version = "2017", ReuseInstance = false)]
             public void CanFindVsTaskLibraryHelperServiceInstance()
             {
                 // Check VsTaskLibraryHelper.ServiceInstance from Microsoft.VisualStudio.Shell.14.0
