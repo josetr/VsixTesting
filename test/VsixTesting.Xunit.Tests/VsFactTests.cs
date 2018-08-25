@@ -112,12 +112,19 @@ namespace VsixTesting.XunitX.Tests
             }
 
             [VsFact(Version = "2017")]
-            public void CanFindMPF14JoinableTaskFactory()
+            public void CanFindVsTaskLibraryHelperServiceInstance()
             {
-                // Check we can retrieve ThreadHelper.JoinableTaskFactory from Microsoft.VisualStudio.Shell.14.0 when running in Visual Studio 2017
-                var type = Type.GetType("Microsoft.VisualStudio.Shell.ThreadHelper, Microsoft.VisualStudio.Shell.14.0, Version=14.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a", true);
-                var joinableTaskFactory = type.GetProperty("JoinableTaskFactory").GetValue(null);
-                Assert.NotNull(joinableTaskFactory);
+                // Check VsTaskLibraryHelper.ServiceInstance from Microsoft.VisualStudio.Shell.14.0
+                // has been initialized when running in Visual Studio 2017
+                var serviceInstance = GetVsTaskLibraryHelperServiceInstance(14);
+                Assert.NotNull(serviceInstance);
+            }
+
+            private static object GetVsTaskLibraryHelperServiceInstance(int version)
+            {
+                var type = Type.GetType($"Microsoft.VisualStudio.Shell.VsTaskLibraryHelper, Microsoft.VisualStudio.Shell.{version}.0, Version={version}.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a", false);
+                var prop = type?.GetProperty("ServiceInstance", new Type[0]);
+                return prop?.GetValue(null);
             }
         }
 
