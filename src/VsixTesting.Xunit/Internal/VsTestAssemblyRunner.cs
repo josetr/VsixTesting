@@ -19,12 +19,14 @@ namespace VsixTesting.XunitX.Internal
         {
         }
 
+        private IEnumerable<IXunitTestCase> LocalTestCases => TestCases.Except(TestCases.OfType<VsTestCaseBase>());
+        private IEnumerable<VsTestCaseBase> RemoteTestCases => TestCases.OfType<VsTestCaseBase>().Except(TestCases.OfType<VsInstanceTestCase>());
+
         protected override async Task<RunSummary> RunTestCollectionsAsync(IMessageBus messageBus, CancellationTokenSource cancellationTokenSource)
         {
-            var localTestCases = TestCases.Except(TestCases.Where(tc => ((tc is VsTestCaseBase) || (tc is VsInstanceTestCase))));
-            var result = await Local_RunTestCasesAsync(localTestCases, messageBus, cancellationTokenSource);
+            var result = await Local_RunTestCasesAsync(LocalTestCases, messageBus, cancellationTokenSource);
 
-            foreach (var remoteTestCases in TestCases.OfType<VsTestCaseBase>().GroupBy(tc => tc.InstanceId).OrderBy(g => g.Key))
+            foreach (var remoteTestCases in RemoteTestCases.GroupBy(tc => tc.InstanceId).OrderBy(g => g.Key))
                 result.Aggregate(await Remote_RunTestCasesAsync(remoteTestCases.Key, remoteTestCases, messageBus, cancellationTokenSource));
 
             return result;
