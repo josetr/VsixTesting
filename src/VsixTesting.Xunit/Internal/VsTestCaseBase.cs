@@ -24,6 +24,8 @@ namespace VsixTesting.XunitX.Internal
         }
 
         public string InstanceId { get; private set; }
+        protected string TraitKey => "VisualStudio";
+        protected string TraitValue => InstanceId.Replace(" ", string.Empty);
 
         public override void Serialize(IXunitSerializationInfo info)
         {
@@ -58,7 +60,7 @@ namespace VsixTesting.XunitX.Internal
         protected override void Initialize()
         {
             base.Initialize();
-            Traits["Visual Studio"] = new List<string>(new[] { InstanceId });
+            Traits[TraitKey] = new List<string>(new[] { TraitValue });
         }
     }
 }

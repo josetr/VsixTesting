@@ -23,12 +23,11 @@ namespace VsixTesting.XunitX.Internal
         {
         }
 
-
         public override Task<RunSummary> RunAsync(IMessageSink diagnosticMessageSink, IMessageBus messageBus, object[] constructorArguments, ExceptionAggregator aggregator, CancellationTokenSource cancellationTokenSource)
             => new ExceptionRunner(this, new NotImplementedException(), string.Empty, messageBus, aggregator, cancellationTokenSource).RunAsync();
 
         protected override string GetDisplayName(IAttributeInfo factAttribute, string displayName)
-            => $"Visual Studio [{InstanceId}]";
+            => $"{TraitKey} [{TraitValue}]";
 
         protected override string GetUniqueID()
             => base.GetUniqueID() + "-" + InstanceId;
