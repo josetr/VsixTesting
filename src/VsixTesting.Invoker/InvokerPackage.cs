@@ -5,12 +5,13 @@ namespace VsixTesting.Invoker
     using System;
     using Microsoft.VisualStudio;
     using Microsoft.VisualStudio.Shell;
-    using EnvDTE;
 
     [PackageRegistration(UseManagedResourcesOnly = true)]
     [ProvideAutomationObject(AutomationObjectName)]
+#if DEBUG
     [ProvideAutoLoad(VSConstants.UICONTEXT.SolutionExists_string)]
     [ProvideAutoLoad(VSConstants.UICONTEXT.NoSolution_string)]
+#endif
     public sealed class InvokerPackage : Package
     {
         private const string AutomationObjectName = "VsixTesting.Invoker";
@@ -23,29 +24,9 @@ namespace VsixTesting.Invoker
             return base.GetAutomationObject(name);
         }
 
+#if DEBUG
         protected override void Initialize()
-        {
-            InitializeThreadHelper();
-        }
-
-        private void InitializeThreadHelper()
-        {
-            if (GetService(typeof(DTE)) is DTE dte)
-            {
-                // Initialize the VsTaskLibraryHelper.ServiceInstance property on UI thread for Microsoft.VisualStudio.Shell.14.0 and above
-                var majorVersion = new Version(dte.Version).Major;
-                for (var shellVersion = majorVersion; shellVersion >= 14; shellVersion--)
-                {
-                    GetVsTaskLibraryHelperServiceInstance(shellVersion);
-                }
-            }
-        }
-
-        private static object GetVsTaskLibraryHelperServiceInstance(int version)
-        {
-            var type = Type.GetType($"Microsoft.VisualStudio.Shell.VsTaskLibraryHelper, Microsoft.VisualStudio.Shell.{version}.0, Version={version}.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a", false);
-            var prop = type?.GetProperty("ServiceInstance", new Type[0]);
-            return prop?.GetValue(null);
-        }
+            => base.Initialize();
+#endif
     }
 }

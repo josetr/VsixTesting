@@ -8,6 +8,10 @@ namespace VsixTesting
     using System.Reflection;
     using System.Runtime.Remoting;
     using System.Runtime.Remoting.Channels;
+    using System.Windows;
+    using System.Windows.Threading;
+    using Microsoft.VisualStudio.Shell;
+    using Microsoft.VisualStudio.Shell.Interop;
     using VsixTesting.Remoting;
 
     internal sealed class Remote
@@ -47,6 +51,21 @@ namespace VsixTesting
             var process = Process.GetProcessById(processId);
             process.EnableRaisingEvents = true;
             process.Exited += (_, e) => Process.GetCurrentProcess().Kill();
+        }
+
+        public static void InitVsTaskLibraryHelperServiceInstance()
+        {
+            Application.Current.Dispatcher.Invoke(
+            () =>
+            {
+                var dte = ServiceProvider.GlobalProvider.GetService(typeof(SDTE)) as EnvDTE.DTE;
+                for (var shellVersion = new Version(dte.Version).Major; shellVersion >= 14; shellVersion--)
+                {
+                    var type = Type.GetType($"Microsoft.VisualStudio.Shell.VsTaskLibraryHelper, Microsoft.VisualStudio.Shell.{shellVersion}.0, Version={shellVersion}.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a", false);
+                    var prop = type?.GetProperty("ServiceInstance", new Type[0]);
+                    prop?.GetValue(null);
+                }
+            }, DispatcherPriority.Background);
         }
 
         public static void Dispose()

@@ -81,6 +81,7 @@ namespace VsixTesting
                     killProcessJob = new KillProcessJob(process);
                     var dte = await VisualStudioUtil.GetDTE(process, timeout);
                     var invoker = (IRemoteComInvoker)dte.GetObject("VsixTesting.Invoker");
+                    InvokeRemote(invoker, nameof(Remote.InitVsTaskLibraryHelperServiceInstance));
                     InvokeRemote(invoker, nameof(Remote.AutoKillWhenProcessExits), Process.GetCurrentProcess().Id);
                     killProcessJob.Release();
                     return new VsInstance(hive.Version, process, dte, invoker);
