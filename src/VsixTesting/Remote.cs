@@ -8,8 +8,6 @@ namespace VsixTesting
     using System.Reflection;
     using System.Runtime.Remoting;
     using System.Runtime.Remoting.Channels;
-    using System.Windows;
-    using System.Windows.Threading;
     using Microsoft.VisualStudio.Shell;
     using Microsoft.VisualStudio.Shell.Interop;
     using VsixTesting.Remoting;
@@ -55,7 +53,7 @@ namespace VsixTesting
 
         public static void InitVsTaskLibraryHelperServiceInstance()
         {
-            Application.Current.Dispatcher.Invoke(
+            ThreadHelper.Generic.Invoke(
             () =>
             {
                 var dte = ServiceProvider.GlobalProvider.GetService(typeof(SDTE)) as EnvDTE.DTE;
@@ -65,7 +63,7 @@ namespace VsixTesting
                     var prop = type?.GetProperty("ServiceInstance", new Type[0]);
                     prop?.GetValue(null);
                 }
-            }, DispatcherPriority.Background);
+            });
         }
 
         public static void Dispose()
