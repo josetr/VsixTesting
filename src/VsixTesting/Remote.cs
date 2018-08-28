@@ -57,9 +57,19 @@ namespace VsixTesting
             () =>
             {
                 var dte = ServiceProvider.GlobalProvider.GetService(typeof(SDTE)) as EnvDTE.DTE;
+
+                // Initialize ServiceProvider.GlobalProvider in Visual Studio 2010 SDK and above
                 for (var shellVersion = new Version(dte.Version).Major; shellVersion >= 10; shellVersion--)
                 {
                     var type = Type.GetType($"Microsoft.VisualStudio.Shell.ServiceProvider, Microsoft.VisualStudio.Shell.{shellVersion}.0, Version={shellVersion}.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a", false);
+                    var prop = type?.GetProperty("GlobalProvider", new Type[0]);
+                    prop?.GetValue(null);
+                }
+
+                // Initialize AsyncServiceProvider.GlobalProvider in Visual Studio 2015 SDK and above
+                for (var shellVersion = new Version(dte.Version).Major; shellVersion >= 14; shellVersion--)
+                {
+                    var type = Type.GetType($"Microsoft.VisualStudio.Shell.AsyncServiceProvider, Microsoft.VisualStudio.Shell.{shellVersion}.0, Version={shellVersion}.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a", false);
                     var prop = type?.GetProperty("GlobalProvider", new Type[0]);
                     prop?.GetValue(null);
                 }
