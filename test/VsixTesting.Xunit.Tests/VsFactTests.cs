@@ -7,6 +7,7 @@ namespace VsixTesting.XunitX.Tests
     using System.IO;
     using System.Threading;
     using System.Windows.Threading;
+    using Microsoft.VisualStudio.ComponentModelHost;
     using Microsoft.VisualStudio.Shell;
     using Microsoft.VisualStudio.Shell.Interop;
     using Vs;
@@ -110,21 +111,33 @@ namespace VsixTesting.XunitX.Tests
                 await Task.Yield();
                 Assert.IsType<DispatcherSynchronizationContext>(SynchronizationContext.Current);
             }
+        }
 
-            [VsFact(Version = "2017", ReuseInstance = false)]
-            public void CanFindVsTaskLibraryHelperServiceInstance()
+        public class ServiceProviderTests
+        {
+            [VsFact(Version = "2017", ReuseInstance = false, UIThread = false)]
+            public async Task CanUseAsyncServiceProviderGetServiceAsync()
             {
-                // Check VsTaskLibraryHelper.ServiceInstance from Microsoft.VisualStudio.Shell.14.0
+                // Check AsyncServiceProvider.GlobalProvider from Microsoft.VisualStudio.Shell.14.0
                 // has been initialized when running in Visual Studio 2017
-                var serviceInstance = GetVsTaskLibraryHelperServiceInstance(14);
-                Assert.NotNull(serviceInstance);
+                var shellVersion = 14;
+                var type = Type.GetType($"Microsoft.VisualStudio.Shell.AsyncServiceProvider, Microsoft.VisualStudio.Shell.{shellVersion}.0, Version={shellVersion}.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a", false);
+                var prop = type?.GetProperty("GlobalProvider", new Type[0]);
+                dynamic asyncServiceProvider = prop.GetValue(null);
+                var componentModel = await asyncServiceProvider.GetServiceAsync(typeof(SComponentModel));
+                Assert.NotNull(componentModel);
             }
 
-            private static object GetVsTaskLibraryHelperServiceInstance(int version)
+            [VsFact(Version = "2017", ReuseInstance = false, UIThread = false)]
+            public void CanFindVsTaskLibraryHelperServiceInstance()
             {
-                var type = Type.GetType($"Microsoft.VisualStudio.Shell.VsTaskLibraryHelper, Microsoft.VisualStudio.Shell.{version}.0, Version={version}.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a", false);
+                // Check ServiceProvider.GlobalProvider from Microsoft.VisualStudio.Shell.14.0
+                // has been initialized when running in Visual Studio 2017
+                var shellVersion = 14;
+                var type = Type.GetType($"Microsoft.VisualStudio.Shell.VsTaskLibraryHelper, Microsoft.VisualStudio.Shell.{shellVersion}.0, Version={shellVersion}.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a", false);
                 var prop = type?.GetProperty("ServiceInstance", new Type[0]);
-                return prop?.GetValue(null);
+                var serviceInstance = prop?.GetValue(null);
+                Assert.NotNull(serviceInstance);
             }
         }
 
