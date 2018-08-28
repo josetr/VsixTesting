@@ -8,6 +8,7 @@ namespace VsixTesting
     using System.Reflection;
     using System.Runtime.Remoting;
     using System.Runtime.Remoting.Channels;
+    using System.Windows;
     using Microsoft.VisualStudio.Shell;
     using Microsoft.VisualStudio.Shell.Interop;
     using VsixTesting.Remoting;
@@ -53,8 +54,7 @@ namespace VsixTesting
 
         public static void InitServiceProviderGlobalProvider()
         {
-            ThreadHelper.Generic.Invoke(
-            () =>
+            Application.Current.Dispatcher.Invoke(() =>
             {
                 var dte = ServiceProvider.GlobalProvider.GetService(typeof(SDTE)) as EnvDTE.DTE;
 
