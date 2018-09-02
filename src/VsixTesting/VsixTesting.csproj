@@ -20,8 +20,8 @@
     <Reference Include="PresentationFramework" />
     <Reference Include="System.Runtime.Remoting" />
     <PackageReference Include="System.ValueTuple" Version="4.3.0" />
-    <PackageReference Include="EnvDTE" Version="8.0.2" />
-    <PackageReference Include="EnvDTE80" Version="8.0.3" PrivateAssets="all" />
+    <PackageReference Include="EnvDTE" Version="8.0.0" />
+    <PackageReference Include="EnvDTE80" Version="8.0.0" PrivateAssets="all" />
     <PackageReference Include="Microsoft.VisualStudio.Setup.Configuration.Interop" Version="1.16.30" PrivateAssets="all" />
     <PackageReference Include="Microsoft.VisualStudio.SDK.EmbedInteropTypes" Version="15.0.17" PrivateAssets="all" />
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0-beta-63127-02" PrivateAssets="All"/>
