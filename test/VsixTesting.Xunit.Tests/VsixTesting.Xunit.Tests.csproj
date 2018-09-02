@@ -6,6 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="VSSDK.ComponentModelHost.11" Version="11.0.4" />
     <PackageReference Include="VSSDK.Shell.11" Version="11.0.4" />
   </ItemGroup>
   <Import Condition="'$(AppVeyor)' == ''" Project="..\..\src\VsixTesting.Xunit\VsixTesting.Xunit.props" />
@@ -21,5 +22,9 @@
   <ItemGroup Condition="'$(AppVeyor)' == ''">
     <ProjectReference Include="..\..\src\VsixTesting\VsixTesting.csproj" />
     <ProjectReference Include="..\..\src\VsixTesting.Xunit\VsixTesting.Xunit.csproj" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
 </Project>

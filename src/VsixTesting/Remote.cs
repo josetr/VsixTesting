@@ -8,6 +8,7 @@ namespace VsixTesting
     using System.Reflection;
     using System.Runtime.Remoting;
     using System.Runtime.Remoting.Channels;
+    using System.Windows;
     using VsixTesting.Remoting;
 
     internal sealed class Remote
@@ -47,6 +48,30 @@ namespace VsixTesting
             var process = Process.GetProcessById(processId);
             process.EnableRaisingEvents = true;
             process.Exited += (_, e) => Process.GetCurrentProcess().Kill();
+        }
+
+        public static void InitServiceProviderGlobalProvider()
+        {
+            Application.Current.Dispatcher.Invoke(() =>
+            {
+                var majorVersion = Process.GetCurrentProcess().MainModule.FileVersionInfo.FileMajorPart;
+
+                // Initialize ServiceProvider.GlobalProvider in Visual Studio 2010 SDK and above
+                for (var shellVersion = majorVersion; shellVersion >= 10; shellVersion--)
+                {
+                    var type = Type.GetType($"Microsoft.VisualStudio.Shell.ServiceProvider, Microsoft.VisualStudio.Shell.{shellVersion}.0, Version={shellVersion}.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a", false);
+                    var prop = type?.GetProperty("GlobalProvider", new Type[0]);
+                    prop?.GetValue(null);
+                }
+
+                // Initialize AsyncServiceProvider.GlobalProvider in Visual Studio 2015 SDK and above
+                for (var shellVersion = majorVersion; shellVersion >= 14; shellVersion--)
+                {
+                    var type = Type.GetType($"Microsoft.VisualStudio.Shell.AsyncServiceProvider, Microsoft.VisualStudio.Shell.{shellVersion}.0, Version={shellVersion}.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a", false);
+                    var prop = type?.GetProperty("GlobalProvider", new Type[0]);
+                    prop?.GetValue(null);
+                }
+            });
         }
 
         public static void Dispose()
