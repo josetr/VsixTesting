@@ -160,10 +160,7 @@ namespace VsixTesting.ExtensionInstaller
                 $"Version={version.Major}.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a");
 
             return (IVsExtensionManager)assembly.GetType("Microsoft.VisualStudio.ExtensionManager.ExtensionManagerService")
-                .GetConstructors()
-                .First(constructorInfo =>
-                    constructorInfo.GetParameters().Length == 1
-                    && constructorInfo.GetParameters().First().ParameterType.IsAssignableFrom(externalSettingsManager.GetType()))
+                .GetConstructor(new[] { externalSettingsManager.GetType() })
                 .Invoke(new[] { externalSettingsManager });
         }
 
@@ -198,14 +195,7 @@ namespace VsixTesting.ExtensionInstaller
                 $"Version={version.Major}.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a");
 
             return assembly.GetType("Microsoft.VisualStudio.Settings.ExternalSettingsManager")
-                .GetMethods()
-                .First(methodInfo =>
-                {
-                    var parameters = methodInfo.GetParameters();
-                    return methodInfo.Name == "CreateForApplication" && parameters.Length == 2
-                        && parameters[0].ParameterType == typeof(string)
-                        && parameters[1].ParameterType == typeof(string);
-                })
+                .GetMethod("CreateForApplication", new[] { typeof(string), typeof(string) })
                 .Invoke(null, new object[] { applicationPath, rootSuffix });
         }
     }
