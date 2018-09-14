@@ -11,18 +11,17 @@
     <GenerateHtmlCoverageReport>true</GenerateHtmlCoverageReport>
     <DocumentationFile>$(OutputPath)$(AssemblyName).xml</DocumentationFile>
     <RootNamespace>VsixTesting.XunitX</RootNamespace>
-
   </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\VsixTesting\VsixTesting.csproj" PrivateAssets="all" />
+  </ItemGroup>
 
   <ItemGroup>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="PresentationFramework" />
     <Reference Include="System.Runtime.Remoting" />
     <Reference Include="WindowsBase" />
-    <ProjectReference Include="..\VsixTesting\VsixTesting.csproj" PrivateAssets="all" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="System.ValueTuple" Version="4.3.0" />
     <PackageReference Include="EnvDTE" Version="8.0.0" />
     <PackageReference Include="Ben.Demystifier.VS" Version="0.1.1" PrivateAssets="all" />
@@ -31,18 +30,14 @@
     <PackageReference Include="xunit.extensibility.execution" Version="$(XunitVersion)" PrivateAssets="all" />
     <PackageReference Include="Microsoft.VisualStudio.SDK.EmbedInteropTypes" Version="15.0.17" PrivateAssets="all" />
     <PackageReference Include="Nerdbank.GitVersioning" Version="2.1.65" PrivateAssets="all" />
-    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0-beta-63127-02" PrivateAssets="All"/>
-  </ItemGroup>
-  
-  <ItemGroup>
-    <Compile Include="$(SolutionDir)\src\VsixTesting\GlobalSuppressions.cs" />
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0-beta-63127-02" PrivateAssets="All" />
   </ItemGroup>
 
   <ItemGroup>
     <Content Include="VsixTesting.Xunit.props" PackagePath="build" />
   </ItemGroup>
 
-  <PropertyGroup >
+  <PropertyGroup>
     <TargetsForTfmSpecificBuildOutput>$(TargetsForTfmSpecificBuildOutput);CopyOutputPathAssembliesToPackage</TargetsForTfmSpecificBuildOutput>
   </PropertyGroup>
   <Target Name="CopyOutputPathAssembliesToPackage" DependsOnTargets="ResolveReferences">
@@ -51,6 +46,6 @@
       <BuildOutputInPackage Include="$(OutputPath)Ben.Demystifier.VS.dll" />
     </ItemGroup>
   </Target>
-  
+
   <Import Project="..\..\Local.targets" Condition="Exists('..\..\Local.targets')" />
 </Project>

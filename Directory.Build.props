@@ -15,11 +15,11 @@
     <IsMainProject>false</IsMainProject>
     <SignAssembly>true</SignAssembly>
   </PropertyGroup>
-  
+
   <PropertyGroup>
     <PackageLicenseUrl>https://github.com/josetr/VsixTesting/blob/master/LICENSE.md</PackageLicenseUrl>
     <PackageProjectUrl>https://github.com/josetr/VsixTesting</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/josetr/VsixTesting</RepositoryUrl> 
+    <RepositoryUrl>https://github.com/josetr/VsixTesting</RepositoryUrl>
     <PackageTags>VisualStudio, Extension, Testing, Xunit, VSIX</PackageTags>
     <Copyright>© Jose Torres. All Rights Reserved.</Copyright>
     <Authors>Jose Torres</Authors>
@@ -35,5 +35,13 @@
   <ItemGroup>
     <PackageReference Include="StyleCop.Analyzers" Version="1.1.0-beta008" PrivateAssets="all" />
     <AdditionalFiles Include="$(SolutionDir)stylecop.json" />
+  </ItemGroup>
+
+  <ItemGroup Condition="$(IsTestProject) != true AND $(MSBuildProjectName) != 'VsixTesting'">
+    <Compile Include="$(SolutionDir)\src\VsixTesting\GlobalSuppressions.cs" />
+  </ItemGroup>
+
+  <ItemGroup Condition="$(IsTestProject) == true AND $(MSBuildProjectName) != 'VsixTesting.Tests'">
+    <Compile Include="$(SolutionDir)\test\VsixTesting.Tests\GlobalSuppressions.cs" />
   </ItemGroup>
 </Project>

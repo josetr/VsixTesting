@@ -17,9 +17,4 @@
       <Private>False</Private>
     </Reference>
   </ItemGroup>
-
-  <ItemGroup>
-    <Compile Include="$(SolutionDir)\src\VsixTesting\GlobalSuppressions.cs" />
-  </ItemGroup>
-
 </Project>

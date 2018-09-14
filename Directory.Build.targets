@@ -41,12 +41,12 @@
       <XunitTargetArgs>@(TestAssemblies->'%(FullPath)', ' ') -stoponfail -noshadow -appveyor -diagnostics -xml $(TestResultsOutputXmlPath)</XunitTargetArgs>
     </PropertyGroup>
 
-    <Exec Condition="$(RunCodeCoverage) != true" 
+    <Exec Condition="$(RunCodeCoverage) != true"
           Command="
 $(XunitConsolePathX86) ^
   $(XunitTargetArgs)" />
 
-    <Exec Condition="$(RunCodeCoverage) == true" 
+    <Exec Condition="$(RunCodeCoverage) == true"
           Command='
 "$(OpenCoverPath)" ^
   -target:"$(XunitConsolePathX86)" ^
@@ -57,8 +57,8 @@ $(XunitConsolePathX86) ^
   -register:user ^
   -returntargetcode:10000' />
 
-    <Exec Condition="$(RunCodeCoverage) == true" 
-          WorkingDirectory="$(SolutionDir)" 
+    <Exec Condition="$(RunCodeCoverage) == true"
+          WorkingDirectory="$(SolutionDir)"
           Command='
 "$(CodeCovPath)" ^
   -f $(CoverageOutputXmlPath)' />
