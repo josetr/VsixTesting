@@ -19,34 +19,26 @@ namespace VsixTesting.ExtensionInstaller
 
     internal class Program
     {
+        internal static Version VsVersion { get; private set; } = new Version(11, 0);
+
         public static int Main(string[] args)
         {
             try
             {
                 var path = CommandLineParser.One(args, "ApplicationPath");
                 var versionInfo = FileVersionInfo.GetVersionInfo(path);
-                var version = Version.Parse(versionInfo.ProductVersion);
+                VsVersion = Version.Parse(versionInfo.ProductVersion);
                 var rootSuffix = CommandLineParser.One(args, "RootSuffix");
                 var extensionPaths = CommandLineParser.Many(args, "ExtensionPaths");
 
-                if (ExtensionManagerService.UpdateExeConfigFile(AppDomain.CurrentDomain, version))
-                {
-                    var process = Process.Start(new ProcessStartInfo
-                    {
-                        FileName = Process.GetCurrentProcess().MainModule.FileName,
-                        Arguments = Environment.CommandLine,
-                        UseShellExecute = false,
-                    });
-
-                    process.WaitForExit();
-                    return process.ExitCode;
-                }
+                if (TryStartRealProcess(out var ec))
+                    return ec;
 
                 AppDomain.CurrentDomain.AssemblyResolve += CreateAssemblyResolver(Path.GetDirectoryName(path));
 
-                var externalSettingsManager = ExternalSettingsManager.CreateForApplication(path, rootSuffix, version);
-                var extensionManager = ExtensionManagerService.Create(externalSettingsManager, version);
-                var installer = new Installer(extensionManager);
+                var externalSettingsManager = ExternalSettingsManager.CreateForApplication(path, rootSuffix);
+                var extensionManagerService = ExtensionManagerService.Create(externalSettingsManager);
+                var installer = new Installer(extensionManagerService);
                 var result = installer.InstallExtensions(extensionPaths);
                 var hiveId = Path.GetFileName(externalSettingsManager.GetApplicationDataFolder(0));
 
@@ -59,6 +51,41 @@ namespace VsixTesting.ExtensionInstaller
                 Console.Error.Write(e.ToString());
                 return -1;
             }
+        }
+
+        private static bool TryStartRealProcess(out int ec)
+        {
+            var appFilePath = Process.GetCurrentProcess().MainModule.FileName;
+            var appConfigFilePath = appFilePath + ".config";
+            ec = 0;
+
+            if (File.Exists(appConfigFilePath) && File.ReadAllText(appConfigFilePath).Contains($@"newVersion=""{Program.VsVersion.Major}"))
+                return false;
+
+            var appConfig = $@"<?xml version=""1.0"" encoding=""utf-8""?>
+<configuration>
+<runtime>
+    <assemblyBinding xmlns=""urn:schemas-microsoft-com:asm.v1"">
+        <dependentAssembly>
+            <assemblyIdentity name=""Microsoft.VisualStudio.ExtensionManager"" publicKeyToken=""b03f5f7f11d50a3a"" culture=""neutral"" />
+            <bindingRedirect oldVersion=""10.0.0.0-{VsVersion.Major}.0.0.0"" newVersion=""{VsVersion.Major}.0.0.0"" />
+        </dependentAssembly>
+    </assemblyBinding>
+    </runtime>
+</configuration>";
+
+            File.WriteAllText(appConfigFilePath, appConfig);
+
+            var process = Process.Start(new ProcessStartInfo
+            {
+                FileName = appFilePath,
+                Arguments = Environment.CommandLine,
+                UseShellExecute = false,
+            });
+
+            process.WaitForExit();
+            ec = process.ExitCode;
+            return true;
         }
 
         private static ResolveEventHandler CreateAssemblyResolver(string applicationDirectory)
@@ -155,47 +182,35 @@ namespace VsixTesting.ExtensionInstaller
 
     internal class ExtensionManagerService
     {
-        public static IVsExtensionManager Create(object externalSettingsManager, Version version)
+        public static Type GetRealType()
         {
             var assembly = Assembly.Load($"Microsoft.VisualStudio.ExtensionManager.Implementation, " +
-                $"Version={version.Major}.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a");
+                $"Version={Program.VsVersion.Major}.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a");
 
-            return (IVsExtensionManager)assembly.GetType("Microsoft.VisualStudio.ExtensionManager.ExtensionManagerService")
-                .GetConstructor(new[] { externalSettingsManager.GetType() })
-                .Invoke(new[] { externalSettingsManager });
+            return assembly.GetType("Microsoft.VisualStudio.ExtensionManager.ExtensionManagerService");
         }
 
-        public static bool UpdateExeConfigFile(AppDomain appDomain, Version version)
+        public static IVsExtensionManager Create(object externalSettingsManager)
         {
-            var configFile = appDomain.SetupInformation.ConfigurationFile;
-            if (File.Exists(configFile) && File.ReadAllText(configFile).Contains($@"newVersion=""{version.Major}"))
-                return false;
-
-            var configuration = $@"<?xml version=""1.0"" encoding=""utf-8""?>
-<configuration>
-<runtime>
-    <assemblyBinding xmlns=""urn:schemas-microsoft-com:asm.v1"">
-        <dependentAssembly>
-            <assemblyIdentity name=""Microsoft.VisualStudio.ExtensionManager"" publicKeyToken=""b03f5f7f11d50a3a"" culture=""neutral"" />
-            <bindingRedirect oldVersion=""10.0.0.0-{version.Major}.0.0.0"" newVersion=""{version.Major}.0.0.0"" />
-        </dependentAssembly>
-    </assemblyBinding>
-    </runtime>
-</configuration>";
-
-            File.WriteAllText(configFile, configuration);
-            return true;
+            return (IVsExtensionManager)GetRealType()
+                .GetConstructor(new[] { externalSettingsManager.GetType() })
+                .Invoke(new[] { externalSettingsManager });
         }
     }
 
     internal class ExternalSettingsManager
     {
-        public static dynamic CreateForApplication(string applicationPath, string rootSuffix, Version version)
+        public static Type GetRealType()
         {
-            var assembly = Assembly.Load($"Microsoft.VisualStudio.Settings{(version.Major > 10 ? $".{version.Major}.0" : string.Empty)}, " +
-                $"Version={version.Major}.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a");
+            var assembly = Assembly.Load($"Microsoft.VisualStudio.Settings{(Program.VsVersion.Major > 10 ? $".{Program.VsVersion.Major}.0" : string.Empty)}, " +
+                $"Version={Program.VsVersion.Major}.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a");
 
-            return assembly.GetType("Microsoft.VisualStudio.Settings.ExternalSettingsManager")
+            return assembly.GetType("Microsoft.VisualStudio.Settings.ExternalSettingsManager");
+        }
+
+        public static dynamic CreateForApplication(string applicationPath, string rootSuffix)
+        {
+            return GetRealType()
                 .GetMethod("CreateForApplication", new[] { typeof(string), typeof(string) })
                 .Invoke(null, new object[] { applicationPath, rootSuffix });
         }
