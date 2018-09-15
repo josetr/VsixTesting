@@ -38,6 +38,7 @@ namespace VsixTesting.ExtensionInstaller
 
                 var externalSettingsManager = ExternalSettingsManager.CreateForApplication(path, rootSuffix);
                 var extensionManagerService = ExtensionManagerService.Create(externalSettingsManager);
+                ExtensionManagerService.VsProductVersion = versionInfo.ProductVersion;
                 var installer = new Installer(extensionManagerService);
                 var result = installer.InstallExtensions(extensionPaths);
                 var hiveId = Path.GetFileName(externalSettingsManager.GetApplicationDataFolder(0));
@@ -55,11 +56,11 @@ namespace VsixTesting.ExtensionInstaller
 
         private static bool TryStartRealProcess(out int ec)
         {
-            var appFilePath = Process.GetCurrentProcess().MainModule.FileName;
+            var appFilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "ServiceHub.VSDetouredHost.exe");
             var appConfigFilePath = appFilePath + ".config";
             ec = 0;
 
-            if (File.Exists(appConfigFilePath) && File.ReadAllText(appConfigFilePath).Contains($@"newVersion=""{Program.VsVersion.Major}"))
+            if (string.Equals(Process.GetCurrentProcess().MainModule.ModuleName, "ServiceHub.VSDetouredHost.exe", StringComparison.OrdinalIgnoreCase))
                 return false;
 
             var appConfig = $@"<?xml version=""1.0"" encoding=""utf-8""?>
@@ -74,6 +75,7 @@ namespace VsixTesting.ExtensionInstaller
     </runtime>
 </configuration>";
 
+            File.Copy(Process.GetCurrentProcess().MainModule.FileName, appFilePath, true);
             File.WriteAllText(appConfigFilePath, appConfig);
 
             var process = Process.Start(new ProcessStartInfo
@@ -84,6 +86,8 @@ namespace VsixTesting.ExtensionInstaller
             });
 
             process.WaitForExit();
+            FileUtil.TryDelete(appConfigFilePath);
+            FileUtil.TryDelete(appConfig);
             ec = process.ExitCode;
             return true;
         }
@@ -182,6 +186,11 @@ namespace VsixTesting.ExtensionInstaller
 
     internal class ExtensionManagerService
     {
+        public static string VsProductVersion
+        {
+            set => GetRealType().GetProperty("VsProductVersion")?.SetValue(null, value);
+        }
+
         public static Type GetRealType()
         {
             var assembly = Assembly.Load($"Microsoft.VisualStudio.ExtensionManager.Implementation, " +
