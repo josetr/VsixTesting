@@ -169,7 +169,6 @@ namespace Vs
                     {
                         "--ApplicationPath", Quote(hive.ApplicationPath),
                         "--RootSuffix", hive.RootSuffix,
-                        "--MajorVersion", hive.Version.Major.ToString(),
                         "--ExtensionPaths",
                     }.Concat(extensions.Select(e => Quote(e)))),
                     CreateNoWindow = true,

@@ -23,8 +23,9 @@ namespace VsixTesting.ExtensionInstaller
         {
             try
             {
-                var version = new Version(int.Parse(CommandLineParser.One(args, "MajorVersion")), 0);
                 var path = CommandLineParser.One(args, "ApplicationPath");
+                var versionInfo = FileVersionInfo.GetVersionInfo(path);
+                var version = Version.Parse(versionInfo.ProductVersion);
                 var rootSuffix = CommandLineParser.One(args, "RootSuffix");
                 var extensionPaths = CommandLineParser.Many(args, "ExtensionPaths");
 
