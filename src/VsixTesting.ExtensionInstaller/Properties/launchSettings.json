@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "VsixTesting.ExtensionInstaller": {
+      "commandName": "Project",
+      "commandLineArgs": "--RootSuffix Exp --ApplicationPath \"$(DevEnvDir)devenv.exe\" --ExtensionPaths \"$(SolutionDir)bin\\VsixTesting.Invoker\\$(Configuration)\\net452\\VsixTesting.Invoker.vsix\""
+    }
+  }
+}
