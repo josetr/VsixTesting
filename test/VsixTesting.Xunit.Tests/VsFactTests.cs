@@ -32,6 +32,10 @@ namespace VsixTesting.XunitX.Tests
         void FactSkipWorks()
             => throw new NotImplementedException();
 
+        [VsFact(Version = "2014", Skip = "Invalid Fact Skip works.")]
+        void InvalidFactSkipWorks()
+            => throw new NotImplementedException();
+
         [VsFact]
         void WebBrowsingServiceIsAvailable()
             => Assert.NotNull(Package.GetGlobalService(typeof(SVsWebBrowsingService)));

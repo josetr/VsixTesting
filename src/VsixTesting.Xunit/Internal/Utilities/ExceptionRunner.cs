@@ -42,13 +42,24 @@ namespace VsixTesting.XunitX.Internal.Utilities
                 CancellationTokenSource.Cancel();
             else
             {
-                summary.Failed = 1;
-                var testFailed = exception != null
-                    ? new TestFailed(test, 0, output, exception)
-                    : new TestFailed(test, 0, output, exceptionTypes, exceptionMessages, exceptionStackTraces, exceptionParenIndices);
+                if (!string.IsNullOrEmpty(TestCase.SkipReason))
+                {
+                    summary.Skipped = 1;
 
-                if (!MessageBus.QueueMessage(testFailed))
-                    CancellationTokenSource.Cancel();
+                    if (!MessageBus.QueueMessage(new TestSkipped(test, TestCase.SkipReason)))
+                        CancellationTokenSource.Cancel();
+                }
+                else
+                {
+                    summary.Failed = 1;
+
+                    if (!MessageBus.QueueMessage(exception != null
+                        ? new TestFailed(test, 0, output, exception)
+                        : new TestFailed(test, 0, output, exceptionTypes, exceptionMessages, exceptionStackTraces, exceptionParenIndices)))
+                    {
+                        CancellationTokenSource.Cancel();
+                    }
+                }
 
                 if (!MessageBus.QueueMessage(new TestFinished(test, 0, output)))
                     CancellationTokenSource.Cancel();
