@@ -38,7 +38,7 @@
       <TestResultsOutputXmlPath>$(CoverageOutputDirectory)$(AssemblyName).TestResults.xml</TestResultsOutputXmlPath>
       <CoverageOutputXmlPath>$(CoverageOutputDirectory)Coverage.xml</CoverageOutputXmlPath>
       <CoverageOutputHtmlDir>$(CoverageOutputDirectory)Coverage</CoverageOutputHtmlDir>
-      <XunitTargetArgs>@(TestAssemblies->'%(FullPath)', ' ') -stoponfail -noshadow -appveyor -diagnostics -xml $(TestResultsOutputXmlPath)</XunitTargetArgs>
+      <XunitTargetArgs>@(TestAssemblies->'%(FullPath)', ' ') -stoponfail -noshadow -appveyor -diagnostics -xml $(TestResultsOutputXmlPath) -notrait VisualStudio=2012FilterTest</XunitTargetArgs>
     </PropertyGroup>
 
     <Exec Condition="$(RunCodeCoverage) != true"

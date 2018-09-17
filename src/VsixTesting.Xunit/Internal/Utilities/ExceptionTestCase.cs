@@ -3,9 +3,12 @@
 namespace VsixTesting.XunitX.Internal.Utilities
 {
     using System;
+    using System.Collections.Generic;
     using System.ComponentModel;
+    using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
+    using Vs;
     using Xunit.Abstractions;
     using Xunit.Sdk;
 
@@ -53,6 +56,21 @@ namespace VsixTesting.XunitX.Internal.Utilities
         public override Task<RunSummary> RunAsync(IMessageSink diagnosticMessageSink, IMessageBus messageBus, object[] constructorArguments, ExceptionAggregator aggregator, CancellationTokenSource cancellationTokenSource)
         {
             return new ExceptionRunner(this, Types, Messages, StackTraces, ParentIndices, string.Empty, messageBus, aggregator, cancellationTokenSource).RunAsync();
+        }
+
+        protected override void Initialize()
+        {
+            base.Initialize();
+
+            try
+            {
+                var testSettings = VsTestSettingsUtil.FromTestMethod(TestMethod);
+                var year = VersionUtil.GetYear(testSettings.SupportedVersionRanges.OrderBy(r => r.Minimum).First().Minimum);
+                Traits[VsTestCaseBase.TraitKey] = new List<string>(new[] { year + testSettings.RootSuffix });
+            }
+            catch
+            {
+            }
         }
     }
 }
