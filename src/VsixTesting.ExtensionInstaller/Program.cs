@@ -321,10 +321,10 @@ namespace VsixTesting.ExtensionInstaller
             for (var i = path.Length - 1; i >= 0; i--)
             {
                 if (path[i] != Path.DirectorySeparatorChar && path[i] != Path.AltDirectorySeparatorChar)
-                    return path.Substring(0, i);
+                    return path.Substring(0, i + 1);
             }
 
-            return path;
+            return string.Empty;
         }
     }
 
