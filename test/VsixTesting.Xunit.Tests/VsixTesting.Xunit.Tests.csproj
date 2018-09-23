@@ -21,4 +21,13 @@
   <ItemGroup Condition="'$(AppVeyor)' != ''">
     <PackageReference Include="VsixTesting.Xunit" Version="$(NBGV_NuGetPackageVersion)" />
   </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\VsixTesting.Invoker\VsixTesting.Invoker.csproj" ReferenceOutputAssembly="false" />
+    <ProjectReference Include="..\\..\src\VsixTesting.Invoker\VsixTesting.Invoker.csproj" ReferenceOutputAssembly="false" CopyVsix="true" ExtensionsDirectory="CopyVsix/True.Relative" />
+    <ProjectReference Include="..\\\..\src\VsixTesting.Invoker\VsixTesting.Invoker.csproj" ReferenceOutputAssembly="false" CopyVsix="true" ExtensionsDirectory="$(TargetDir)CopyVsix/True.Absolute" />
+    <ProjectReference Include="..\\\\..\src\VsixTesting.Invoker\VsixTesting.Invoker.csproj" ReferenceOutputAssembly="false" CopyVsix="false" ExtensionsDirectory="CopyVsix/False" />
+  </ItemGroup>
+
+  <Import Condition="'$(AppVeyor)' == ''" Project="..\..\src\VsixTesting.Xunit\VsixTesting.Xunit.targets" />
 </Project>

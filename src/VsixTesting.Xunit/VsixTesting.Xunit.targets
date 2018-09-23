@@ -1,0 +1,75 @@
+﻿<Project>
+  <Target Name="CopyProjectReferenceVsixOutputs"
+          AfterTargets="ResolveProjectReferences"
+          DependsOnTargets="ResolveProjectReferences">
+
+    <FilterVsixProjectReferences Projects="@(_MSBuildProjectReferenceExistent)">
+      <Output TaskParameter="VsixProjects" ItemName="_MSBuildVsixProjectReferenceExistent" />
+    </FilterVsixProjectReferences>
+
+    <MSBuild Projects="@(_MSBuildVsixProjectReferenceExistent)"
+             Targets="VSIXContainerProjectOutputGroup"
+             BuildInParallel="$(BuildInParallel)"
+             Properties="%(_MSBuildVsixProjectReferenceExistent.SetConfiguration); %(_MSBuildVsixProjectReferenceExistent.SetPlatform); %(_MSBuildVsixProjectReferenceExistent.SetTargetFramework);"
+             Condition="'%(_MSBuildVsixProjectReferenceExistent.CopyVsix)' != 'false'"
+             ContinueOnError="$(ContinueOnError)"
+             RemoveProperties="%(_MSBuildVsixProjectReferenceExistent.GlobalPropertiesToRemove)">
+      <Output TaskParameter="TargetOutputs" ItemName="_ProjectReferenceVsixOutputs" />
+    </MSBuild>
+    
+    <ItemGroup>
+      <_ProjectReferenceVsixOutputs>
+        <ExtensionsDirectory Condition="$([System.IO.Path]::IsPathRooted('%(_ProjectReferenceVsixOutputs.ExtensionsDirectory)')) == false">$(OutDir)%(_ProjectReferenceVsixOutputs.ExtensionsDirectory)</ExtensionsDirectory>
+      </_ProjectReferenceVsixOutputs>
+    </ItemGroup>
+
+    <Copy
+      SourceFiles="%(_ProjectReferenceVsixOutputs.Identity)"
+      DestinationFolder="%(_ProjectReferenceVsixOutputs.ExtensionsDirectory)"
+      SkipUnchangedFiles="true"
+      OverwriteReadOnlyFiles="$(OverwriteReadOnlyFiles)"
+      Retries="$(CopyRetryCount)"
+      RetryDelayMilliseconds="$(CopyRetryDelayMilliseconds)"
+      Condition="Exists(%(_ProjectReferenceVsixOutputs.Identity))">
+      <Output TaskParameter="DestinationFiles" ItemName="FileWrites"/>
+    </Copy>
+  </Target>
+
+  <UsingTask TaskName="FilterVsixProjectReferences" TaskFactory="CodeTaskFactory" AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.v4.0.dll">
+    <ParameterGroup>
+      <Projects ParameterType="Microsoft.Build.Framework.ITaskItem[]" Required="true" />
+      <VsixProjects ParameterType="Microsoft.Build.Framework.ITaskItem[]" Output="true" />
+    </ParameterGroup>
+    <Task>
+      <Reference Include="Microsoft.Build" />
+      <Reference Include="Microsoft.Build.Framework" />
+      <Reference Include="System.Xml" />
+      <Using Namespace="Microsoft.Build.Evaluation" />
+      <Using Namespace="System.IO" />
+
+      <Code Type="Fragment" Language="cs">
+        <![CDATA[
+            var VSSDKTargets = new[] { "CreateVsixContainer", "VSIXContainerProjectOutputGroup" };
+
+            VsixProjects = Projects.Where(projectReference =>
+            {
+                try
+                {
+                    var projectCollection = new ProjectCollection();
+                    var project = projectCollection.LoadProject(projectReference.ItemSpec);
+                    var isVsixProject = VSSDKTargets.All(targetName => project.Targets.Any(target => target.Key == targetName));
+                    projectCollection.UnloadProject(project);
+                    return isVsixProject;
+                }
+                catch
+                {
+                    return false;
+                }
+            }).ToArray();
+            
+            return true;
+        ]]>
+      </Code>
+    </Task>
+  </UsingTask>
+</Project>

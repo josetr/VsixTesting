@@ -35,6 +35,7 @@
 
   <ItemGroup>
     <Content Include="VsixTesting.Xunit.props" PackagePath="build" />
+    <Content Include="VsixTesting.Xunit.targets" PackagePath="build" />
   </ItemGroup>
 
   <PropertyGroup>
