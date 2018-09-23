@@ -27,6 +27,10 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(AppVeyor)' != ''">
+    <DefineConstants>$(DefineConstants);CI</DefineConstants>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(AppVeyor)' != ''">
     <RestoreAdditionalProjectSources Condition="Exists('$(SolutionDir)bin\VsixTesting.Xunit\$(Configuration)')">
       $(SolutionDir)bin\VsixTesting.Xunit\$(Configuration)
     </RestoreAdditionalProjectSources>
