@@ -57,7 +57,7 @@ $(XunitConsolePathX86) ^
   -register:user ^
   -returntargetcode:10000' />
 
-    <Exec Condition="$(RunCodeCoverage) == true"
+    <Exec Condition="$(RunCodeCoverage) == true AND '$(AppVeyor)' != ''"
           WorkingDirectory="$(SolutionDir)"
           Command='
 "$(CodeCovPath)" ^
