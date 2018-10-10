@@ -13,7 +13,7 @@ namespace VsixTesting
         internal static readonly VsTestSettings Defaults = new VsTestSettings();
         public string Version { get; set; } = "2012-";
         public string RootSuffix { get; set; } = "Exp";
-        public int LaunchTimeoutInSeconds { get; set; } = 45;
+        public int LaunchTimeoutInSeconds { get; set; } = 90;
         public bool DebugMixedMode { get; set; } = false;
         public bool ResetSettings { get; set; } = false;
         public bool SecureChannel { get; set; } = false;
