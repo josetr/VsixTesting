@@ -31,7 +31,8 @@ namespace VsixTesting.XunitX.Internal
                 yield return testCase;
 
                 if (string.IsNullOrEmpty(testCase.SkipReason) && instance.DidReportInstanceTestCase == false)
-                    yield return new VsInstanceTestCase(instance.Id, diagnosticMessageSink, testMethodDisplay, instance.CreateVisualStudioTestMethod());
+                    yield return instance.TestCase = new VsInstanceTestCase(instance.Id, instance.Path, testSettings.RootSuffix, diagnosticMessageSink, testMethodDisplay, instance.CreateVisualStudioTestMethod());
+                instance.TestCase?.MergeSettings(testCase.Settings);
             }
         }
 
@@ -45,7 +46,8 @@ namespace VsixTesting.XunitX.Internal
                 yield return testCase;
 
                 if (string.IsNullOrEmpty(testCase.SkipReason) && instance.DidReportInstanceTestCase == false)
-                    yield return new VsInstanceTestCase(instance.Id, diagnosticMessageSink, testMethodDisplay, instance.CreateVisualStudioTestMethod());
+                    yield return instance.TestCase = new VsInstanceTestCase(instance.Id, instance.Path, testSettings.RootSuffix, diagnosticMessageSink, testMethodDisplay, instance.CreateVisualStudioTestMethod());
+                instance.TestCase?.MergeSettings(testCase.Settings);
             }
         }
 
@@ -125,6 +127,7 @@ namespace VsixTesting.XunitX.Internal
             public string Id { get; }
             public string Path { get; }
             public bool DidReportInstanceTestCase => Interlocked.CompareExchange(ref reportInstanceTestCaseOnce, 1, 0) == 1 ? true : false;
+            public VsInstanceTestCase TestCase { get; set; }
 
             public ITestMethod CreateTestMethod(ITestMethod testMethod)
             {

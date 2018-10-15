@@ -207,14 +207,7 @@ namespace VsixTesting.XunitX.Internal
         }
 
         private IEnumerable<string> GetExtensionsToInstall()
-        {
-            var extensionDirs = testCases.OfType<VsTestCase>()
-                .Select(tc => tc.Settings.ExtensionsDirectory).Distinct()
-                .Select(relativeDir => Path.GetFullPath(relativeDir)).Distinct()
-                .Where(absoluteDir => Directory.Exists(absoluteDir));
-
-            return extensionDirs.Select(absoluteDir => Directory.GetFiles(absoluteDir, "*.vsix")).SelectMany(extensionPath => extensionPath);
-        }
+            => VsInstance.GetExtensionsToInstall(testCases.OfType<VsTestCase>().Select(tc => tc.Settings.ExtensionsDirectory));
 
         private Assembly CurrentDomain_AssemblyResolve(object sender, ResolveEventArgs args)
             => AppDomain.CurrentDomain.GetAssemblies().SingleOrDefault(assembly => assembly.FullName.Equals(args.Name));
