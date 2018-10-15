@@ -2,11 +2,23 @@
   <PropertyGroup>
     <TargetFramework>net452</TargetFramework>
     <OutputType>Exe</OutputType>
-    <IsPackable>False</IsPackable>
+    <IsPackable>true</IsPackable>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Prefer32Bit>true</Prefer32Bit>
-    <DocumentationFile>$(OutputPath)$(AssemblyName).xml</DocumentationFile>
+    <PackageId>VsixTesting.Installer</PackageId>
+    <IsTool>true</IsTool>
   </PropertyGroup>
 
+  <ItemGroup>
+    <Content Include="VsixTesting.Installer.props" PackagePath="build" />
+  </ItemGroup>
+
+  <Target Name="CopyAssembliesToPackage" AfterTargets="Build">
+    <ItemGroup>
+      <Content Include="$(TargetDir)EnvDTE.dll" PackagePath="tools" />
+    </ItemGroup>
+  </Target>
+  
   <ItemGroup>
     <Reference Include="System.IO.Compression" />
     <Reference Include="System.Configuration" />
@@ -16,5 +28,9 @@
       <SpecificVersion>false</SpecificVersion>
       <Private>False</Private>
     </Reference>
+    <PackageReference Include="EnvDTE" Version="8.0.0" />
+    <PackageReference Include="EnvDTE80" Version="8.0.0" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.VisualStudio.SDK.EmbedInteropTypes" Version="15.0.17" PrivateAssets="all" />
+    <PackageReference Include="Nerdbank.GitVersioning" Version="2.1.65" PrivateAssets="all" />
   </ItemGroup>
 </Project>
