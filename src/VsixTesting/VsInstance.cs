@@ -5,6 +5,7 @@ namespace VsixTesting
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
+    using System.IO;
     using System.Linq;
     using System.Reflection;
     using System.Runtime.Remoting;
@@ -35,7 +36,7 @@ namespace VsixTesting
         public DTE Dte { get; }
         public IRemoteComInvoker ComInvoker { get; }
 
-        public static async Task Prepare(VsHive hive, IEnumerable<string> extensionsToInstall, bool resetSettings, IDiagnostics diagnostics)
+        public static async Task Prepare(VsHive hive, IEnumerable<string> extensionsToInstall, bool resetSettings, IDiagnostics diagnostics, bool installInvoker = true)
         {
             await diagnostics.RunAsync("Preparing Instance", async output =>
             {
@@ -45,6 +46,9 @@ namespace VsixTesting
                 using (var invoker = new TempFile(EmbeddedResourceUtil.ExtractResource(invokerAssembly, "VsixTesting.Invoker.vsix")))
                 {
                     EmbeddedResourceUtil.ApplyDateTime(invoker.Path, invokerAssembly, "VsixTesting.Invoker.vsix");
+
+                    if (installInvoker)
+                        extensionsToInstall = extensionsToInstall.Concat(new[] { invoker.Path });
 
                     isProfileInitialized = await VisualStudioUtil.IsProfileInitializedAsync(hive);
                     var installResult = await VisualStudioUtil.InstallExtensionsAsync(hive, extensionsToInstall.Concat(new[] { invoker.Path }));
@@ -119,6 +123,15 @@ namespace VsixTesting
             }
 
             return (T)RemotingServices.Connect(typeof(T), $"ipc://{remoteChannelPortName}/{typeof(T).FullName}");
+        }
+
+        public static IEnumerable<string> GetExtensionsToInstall(IEnumerable<string> extensionDirs)
+        {
+            return extensionDirs.Distinct()
+                .Select(relativeDir => Path.GetFullPath(relativeDir)).Distinct()
+                .Where(absoluteDir => Directory.Exists(absoluteDir))
+                .Select(absoluteDir => Directory.GetFiles(absoluteDir, "*.vsix"))
+                .SelectMany(extensionPath => extensionPath);
         }
 
         public async Task DisposeAsync()

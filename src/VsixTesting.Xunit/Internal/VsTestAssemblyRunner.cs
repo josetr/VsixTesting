@@ -3,7 +3,6 @@
 namespace VsixTesting.XunitX.Internal
 {
     using System.Collections.Generic;
-    using System.Diagnostics;
     using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
@@ -28,6 +27,12 @@ namespace VsixTesting.XunitX.Internal
 
             foreach (var remoteTestCases in RemoteTestCases.GroupBy(tc => tc.InstanceId).OrderBy(g => g.Key))
                 result.Aggregate(await Remote_RunTestCasesAsync(remoteTestCases.Key, remoteTestCases, messageBus, cancellationTokenSource));
+
+            foreach (var instanceTestCase in TestCases.OfType<VsInstanceTestCase>())
+            {
+                if (!RemoteTestCases.Any(tc => tc.InstanceId == instanceTestCase.InstanceId))
+                    await instanceTestCase.LaunchAndDebug(messageBus, cancellationTokenSource);
+            }
 
             return result;
         }

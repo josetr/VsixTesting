@@ -15,13 +15,18 @@ namespace VsixTesting.XunitX.Tests
         void SerializationWorks()
         {
             var info = new XunitSerializationInfo();
-            var exceptionTestCase = new VsInstanceTestCase("VS 2015", new NullMessageSink(), default, default);
+            var exceptionTestCase = new VsInstanceTestCase("VS 2015", "c:/path/to/devenv.exe", "Exp", new NullMessageSink(), default, default);
+            exceptionTestCase.MergeSettings(new VsTestSettings { DebugMixedMode = true, ExtensionsDirectory = "dir" });
             exceptionTestCase.Serialize(info);
 
             var deserializedTestCase = new VsInstanceTestCase();
             deserializedTestCase.Deserialize(info);
 
             Assert.Equal(exceptionTestCase.InstanceId, deserializedTestCase.InstanceId);
+            Assert.Equal(exceptionTestCase.ApplicationPath, deserializedTestCase.ApplicationPath);
+            Assert.Equal(exceptionTestCase.RootSuffix, deserializedTestCase.RootSuffix);
+            Assert.Equal(exceptionTestCase.DebugMixedMode, deserializedTestCase.DebugMixedMode);
+            Assert.Equal(exceptionTestCase.ExtensionDirectories, deserializedTestCase.ExtensionDirectories);
         }
     }
 }
