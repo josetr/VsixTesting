@@ -2,6 +2,7 @@
 #pragma warning disable SA1307 // Accessible fields should begin with upper-case letter
 #pragma warning disable SA1310 // Field names should not contain underscore
 #pragma warning disable SA1402 // File may only contain a single type
+#pragma warning disable SA1201 // Elements should appear in the correct order
 
 namespace VsixTesting.ExtensionInstaller
 {
@@ -12,40 +13,65 @@ namespace VsixTesting.ExtensionInstaller
     using System.Linq;
     using System.Reflection;
     using System.Runtime.InteropServices;
+    using System.Text;
     using Microsoft.VisualStudio.ExtensionManager;
-    using Microsoft.Win32;
-    using static RestartManager;
+    using static VsixTesting.ExtensionInstaller.RestartManager;
     using FILETIME = System.Runtime.InteropServices.ComTypes.FILETIME;
 
-    internal class Program
+    internal class Program : MarshalByRefObject
     {
-        internal static Version VsVersion { get; private set; } = new Version(11, 0);
-
         public static int Main(string[] args)
+        {
+            var applicationPath = CommandLineParser.One(args, "ApplicationPath");
+            var rootSuffix = CommandLineParser.One(args, "RootSuffix", string.Empty);
+            var appDomain = CreateAppDomain(applicationPath);
+            var program = appDomain.CreateInstanceFromAndUnwrap<Program>();
+            return program.Run(applicationPath, rootSuffix, args);
+        }
+
+        private int Run(string applicationPath, string rootSuffix, string[] args)
         {
             try
             {
-                var path = CommandLineParser.One(args, "ApplicationPath");
-                var versionInfo = FileVersionInfo.GetVersionInfo(path);
-                VsVersion = Version.Parse(versionInfo.ProductVersion);
-                var rootSuffix = CommandLineParser.One(args, "RootSuffix");
-                var extensionPaths = CommandLineParser.Many(args, "ExtensionPaths");
+                if (!ExtensionManagerUtil.IsValidProcessFileName(applicationPath, out var expectedFileName))
+                    return StartProcess(expectedFileName);
 
-                if (TryStartRealProcess(out var ec))
-                    return ec;
+                var commands = new Dictionary<string, Func<int>>
+                {
+                    {
+                        "Install", () =>
+                        {
+                            var extensionPaths = CommandLineParser.Many(args, "Install");
+                            return Installer.Install(applicationPath, rootSuffix, extensionPaths, allUsers: false);
+                        }
+                    },
+                    {
+                        "Uninstall", () =>
+                        {
+                            var extensionIds = CommandLineParser.Many(args, "Uninstall");
+                            return Installer.Uninstall(applicationPath, rootSuffix, extensionIds, skipGlobal: false);
+                        }
+                    },
+                    {
+                        "IsProfileInitialized", () =>
+                        {
+                            using (var externalSettingsManager = ExternalSettingsManager.CreateForApplication(applicationPath, rootSuffix))
+                            {
+                                var settings = externalSettingsManager.GetWritableSettingsStore(SettingsScope.UserSettings);
+                                var isProfileInitialized = settings.CollectionExists("Profile") && settings.GetPropertyNames("Profile").Contains("LastResetSettingsFile");
+                                return Convert.ToInt32(isProfileInitialized);
+                            }
+                        }
+                    },
+                };
 
-                AppDomain.CurrentDomain.AssemblyResolve += CreateAssemblyResolver(Path.GetDirectoryName(path));
+                foreach (var cmd in commands)
+                {
+                    if (CommandLineParser.Contains(args, cmd.Key))
+                        return cmd.Value();
+                }
 
-                var externalSettingsManager = ExternalSettingsManager.CreateForApplication(path, rootSuffix);
-                var extensionManagerService = ExtensionManagerService.Create(externalSettingsManager);
-                ExtensionManagerService.VsProductVersion = versionInfo.ProductVersion;
-                var installer = new Installer(extensionManagerService);
-                var result = installer.InstallExtensions(extensionPaths);
-                var hiveId = Path.GetFileName(externalSettingsManager.GetApplicationDataFolder(0));
-
-                return HiveHasSettingsFile(hiveId)
-                    ? result
-                    : result + 9999;
+                throw new Exception($@"Invalid command");
             }
             catch (Exception e)
             {
@@ -54,52 +80,38 @@ namespace VsixTesting.ExtensionInstaller
             }
         }
 
-        private static bool TryStartRealProcess(out int ec)
+        private static AppDomain CreateAppDomain(string applicationPath)
         {
-            var appFilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "ServiceHub.VSDetouredHost.exe");
-            var appConfigFilePath = appFilePath + ".config";
-            ec = 0;
-
-            if (string.Equals(Process.GetCurrentProcess().MainModule.ModuleName, "ServiceHub.VSDetouredHost.exe", StringComparison.OrdinalIgnoreCase))
-                return false;
-
-            var appConfig = $@"<?xml version=""1.0"" encoding=""utf-8""?>
+            var version = Version.Parse(FileVersionInfo.GetVersionInfo(applicationPath).ProductVersion);
+            var appDomainSetup = new AppDomainSetup { ApplicationBase = Path.GetDirectoryName(typeof(Program).Assembly.Location) };
+            appDomainSetup.SetConfigurationBytes(Encoding.UTF8.GetBytes($@"<?xml version=""1.0"" encoding=""utf-8""?>
 <configuration>
 <runtime>
     <assemblyBinding xmlns=""urn:schemas-microsoft-com:asm.v1"">
         <dependentAssembly>
             <assemblyIdentity name=""Microsoft.VisualStudio.ExtensionManager"" publicKeyToken=""b03f5f7f11d50a3a"" culture=""neutral"" />
-            <bindingRedirect oldVersion=""10.0.0.0-{VsVersion.Major}.0.0.0"" newVersion=""{VsVersion.Major}.0.0.0"" />
+            <bindingRedirect oldVersion=""10.0.0.0-{version.Major}.0.0.0"" newVersion=""{version.Major}.0.0.0"" />
         </dependentAssembly>
     </assemblyBinding>
     </runtime>
-</configuration>";
-
-            File.Copy(Process.GetCurrentProcess().MainModule.FileName, appFilePath, true);
-            File.WriteAllText(appConfigFilePath, appConfig);
-
-            var process = Process.Start(new ProcessStartInfo
-            {
-                FileName = appFilePath,
-                Arguments = Environment.CommandLine,
-                UseShellExecute = false,
-            });
-
-            process.WaitForExit();
-            FileUtil.TryDelete(appConfigFilePath);
-            FileUtil.TryDelete(appConfig);
-            ec = process.ExitCode;
-            return true;
+</configuration>"));
+            var appDomain = AppDomain.CreateDomain($"{nameof(Installer)} {version}", null, appDomainSetup);
+            var assemblyResolver = appDomain.CreateInstanceFromAndUnwrap<AssemblyResolver>();
+            assemblyResolver.Install(Path.GetDirectoryName(applicationPath));
+            return appDomain;
         }
 
         private static ResolveEventHandler CreateAssemblyResolver(string applicationDirectory)
         {
+            var probingPaths = new[] { ".", "PrivateAssemblies", "PublicAssemblies" }
+                .Select(relativeDir => Path.Combine(applicationDirectory, relativeDir));
+
             return (object sender, ResolveEventArgs eventArgs) =>
             {
                 var assemblyName = new AssemblyName(eventArgs.Name);
-                foreach (var sdir in new string[] { ".", "PrivateAssemblies", "PublicAssemblies" })
+                foreach (var probingPath in probingPaths)
                 {
-                    var assemblyFile = Path.Combine(applicationDirectory, sdir, $"{assemblyName.Name}.dll");
+                    var assemblyFile = Path.Combine(probingPath, $"{assemblyName.Name}.dll");
                     if (File.Exists(assemblyFile))
                         return Assembly.LoadFrom(assemblyFile);
                 }
@@ -108,121 +120,348 @@ namespace VsixTesting.ExtensionInstaller
             };
         }
 
-        private static bool HiveHasSettingsFile(string id)
+        private static int StartProcess(string filename)
         {
-            using (var profile = Registry.CurrentUser.OpenSubKey($@"SOFTWARE\Microsoft\VisualStudio\{id}\Profile"))
+            var executablePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, filename);
+            File.Copy(Process.GetCurrentProcess().MainModule.FileName, executablePath, true);
+            var process = Process.Start(new ProcessStartInfo
             {
-                if (profile != null && !string.IsNullOrEmpty(profile.GetValue("LastResetSettingsFile") as string))
-                    return true;
-            }
+                FileName = executablePath,
+                Arguments = Environment.CommandLine,
+                UseShellExecute = false,
+            });
+            process.WaitForExit();
+            FileUtil.TryDelete(executablePath);
+            return process.ExitCode;
+        }
 
-            return false;
+        internal class AssemblyResolver : MarshalByRefObject
+        {
+            private ResolveEventHandler assemblyResolver;
+
+            public void Install(string baseDir)
+            {
+                if (assemblyResolver == null)
+                {
+                    assemblyResolver = CreateAssemblyResolver(baseDir);
+                    AppDomain.CurrentDomain.AssemblyResolve += assemblyResolver;
+                }
+            }
         }
     }
 
-    internal class Installer
+    internal class Installer : IDisposable
     {
-        private readonly IVsExtensionManager extensionManager;
+        private readonly ExternalSettingsManager externalSettingsManager;
+        private IVsExtensionManager extensionManager;
 
-        public Installer(IVsExtensionManager extensionManager)
+        public Installer(ExternalSettingsManager externalSettingsManager)
         {
-            this.extensionManager = extensionManager;
+            this.externalSettingsManager = externalSettingsManager;
+            extensionManager = ExtensionManagerService.Create(externalSettingsManager);
         }
 
-        public int InstallExtensions(IEnumerable<string> extensionPaths)
-            => extensionPaths.Where(extensionPath => InstallExtension(extensionPath)).Count();
+        internal ExtensionManagerService ExtensionManagerService => new ExtensionManagerService(extensionManager);
 
-        public bool InstallExtension(string extensionPath)
+        public static int Install(string applicationPath, string rootSuffix, IEnumerable<string> extensionPaths, bool? allUsers = default)
+        {
+            using (var externalSettingsManager = ExternalSettingsManager.CreateForApplication(applicationPath, rootSuffix))
+            {
+                using (var installer = new Installer(externalSettingsManager))
+                    return extensionPaths.Count(path => installer.Install(path, allUsers: allUsers));
+            }
+        }
+
+        public bool Install(string extensionPath, bool? allUsers = default)
         {
             var installableExtension = extensionManager.CreateInstallableExtension(extensionPath);
-            var packageWriteDateTime = File.GetLastWriteTime(installableExtension.PackagePath);
-            var installedExtension = default(IInstalledExtension);
 
-            if (extensionManager.IsInstalled(installableExtension))
+            if (extensionManager.TryGetInstalledExtension(installableExtension.Header.Identifier, out var installedExtension))
             {
-                installedExtension = extensionManager.GetInstalledExtension(installableExtension.Header.Identifier);
-                var installedOn = File.GetLastWriteTime(GetManifestPath(installedExtension)); // installedExtension.InstalledOn throws
-
-                if (installableExtension.Header.Version == installedExtension.Header.Version && packageWriteDateTime < installedOn)
+                if (IsUpToDate(installableExtension, installedExtension))
                 {
                     Console.WriteLine($"Extension {NameVer(installedExtension)} is up to date.");
-                    extensionManager.Enable(installedExtension);
+                    if (installedExtension.State != EnabledState.Enabled)
+                        extensionManager.Enable(installedExtension);
                     return false;
                 }
 
-                Console.WriteLine($"Uninstalling {NameVer(installedExtension)}");
-                extensionManager.Uninstall(installedExtension);
+                Uninstall(installableExtension.Header.Identifier, skipGlobal: GetIsExperimentalProperty(installableExtension.Header) != null);
             }
 
-            if (installableExtension.Header.AllUsers)
+            if (extensionManager.TryGetInstalledExtension(installableExtension.Header.Identifier, out var globalExtension) && globalExtension.InstalledPerMachine)
             {
-                var header = installableExtension.Header;
-                header.GetType().GetProperty(nameof(header.AllUsers)).SetValue(header, false);
+                if (installableExtension.Header.Version <= globalExtension.Header.Version)
+                    throw new Exception($"Extension '{NameVer(installableExtension)}' version must be higher than the globally installed extension '{NameVer(globalExtension)}'.");
+
+                SetIsExperimental(installableExtension.Header, true);
             }
+
+            if (allUsers.HasValue)
+                SetAllUsers(installableExtension.Header, allUsers.Value);
 
             Console.WriteLine($"Installing {NameVer(installableExtension)}");
-            extensionManager.Install(installableExtension, false);
-
+            extensionManager.Install(installableExtension, installableExtension.Header.AllUsers);
+            ExtensionManagerUtil.EnableLoadingExtensionsFromLocalAppData(externalSettingsManager);
+            ExtensionManagerUtil.RemovePendingExtensionDeletion(externalSettingsManager, installableExtension.Header);
+            ExtensionManagerService.UpdateLastExtensionsChange();
             var newlyInstalledExtension = extensionManager.GetInstalledExtension(installableExtension.Header.Identifier);
             extensionManager.Enable(newlyInstalledExtension);
             File.SetLastWriteTime(GetManifestPath(newlyInstalledExtension), DateTime.Now);
+            if (!IsUpToDate(installableExtension, newlyInstalledExtension))
+                throw new Exception($"Failed installing extension '{NameVer(installableExtension)}'.");
+            return true;
+        }
 
-            if (installedExtension != null && !PathUtil.ArePathEqual(installedExtension.InstallPath, newlyInstalledExtension.InstallPath))
+        public static int Uninstall(string applicationPath, string rootSuffix, IEnumerable<string> extensionIds, bool skipGlobal)
+        {
+            using (var externalSettingsManager = ExternalSettingsManager.CreateForApplication(applicationPath, rootSuffix))
             {
-                Console.WriteLine($"Removing {installedExtension.InstallPath}");
+                using (var installer = new Installer(externalSettingsManager))
+                    return extensionIds.Count(id => installer.Uninstall(id, skipGlobal));
+            }
+        }
 
-                if (!DirectoryUtil.TryDeleteHard(installedExtension.InstallPath, recursive: true))
-                    Console.WriteLine($"The directory {installedExtension.InstallPath} could not be deleted completely. If you do not delete it manually, it will waste disk space.");
+        public bool Uninstall(string id, bool skipGlobal)
+        {
+            if (!extensionManager.TryGetInstalledExtension(id, out var _))
+                return false;
+
+            while (extensionManager.TryGetInstalledExtension(id, out var installedExtension))
+            {
+                if (skipGlobal && installedExtension.InstalledPerMachine)
+                    return false;
+
+                Console.WriteLine($"Uninstalling {NameVer(installedExtension)}");
+                extensionManager.Uninstall(installedExtension);
+
+                DirectoryUtil.DeleteHard(installedExtension.InstallPath, true);
+                ExtensionManagerUtil.RemovePendingExtensionDeletion(externalSettingsManager, installedExtension.Header);
+
+                // Reset extension manager cache
+                ExtensionManagerService.Dispose();
+                extensionManager = ExtensionManagerService.Create(externalSettingsManager);
             }
 
             return true;
         }
 
-        private static string NameVer(IExtension ext) => ext.Header.Name + " " + ext.Header.Version;
+        public void Dispose() => ExtensionManagerService.Dispose();
+
+        private static bool IsUpToDate(IInstallableExtension installableExtension, IInstalledExtension installedExtension)
+        {
+            return
+                installedExtension.Header.Version == installableExtension.Header.Version &&
+                File.GetLastWriteTime(GetManifestPath(installedExtension)) > File.GetLastWriteTime(installableExtension.PackagePath) &&
+                installedExtension.InstalledPerMachine == false;
+        }
+
+        private static string NameVer(IExtension extension) => extension.Header.Name + " " + extension.Header.Version;
 
         private static string GetManifestPath(IInstalledExtension installedExtension)
             => Path.Combine(installedExtension.InstallPath, "extension.vsixmanifest");
+
+        private static void SetIsExperimental(IExtensionHeader header, bool value)
+        {
+            var prop = GetIsExperimentalProperty(header);
+            if (prop != null && prop.CanWrite)
+                prop.SetValue(header, value);
+        }
+
+        private static void SetAllUsers(IExtensionHeader header, bool value)
+        {
+            var prop = header.GetType().GetProperty(nameof(header.AllUsers));
+            if (prop != null && prop.CanWrite)
+                prop.SetValue(header, value);
+        }
+
+        private static PropertyInfo GetIsExperimentalProperty(IExtensionHeader header)
+            => header.GetType().GetProperty("IsExperimental");
     }
 
     internal class ExtensionManagerService
     {
-        public static string VsProductVersion
+        public ExtensionManagerService(IVsExtensionManager obj)
         {
-            set => GetRealType().GetProperty("VsProductVersion")?.SetValue(null, value);
+            if (obj.GetType() != GetRealType())
+                throw new InvalidCastException();
+
+            Obj = obj;
         }
 
-        public static Type GetRealType()
+        public dynamic Obj { get; }
+
+        public static string VsProductVersion
         {
+            get => (string)GetRealType().GetProperty(nameof(VsProductVersion)).GetValue(null);
+            set => GetRealType().GetProperty(nameof(VsProductVersion)).SetValue(null, value);
+        }
+
+        public static IVsExtensionManager Create(ExternalSettingsManager externalSettingsManager)
+        {
+            return (IVsExtensionManager)GetRealType()
+                .GetConstructor(new Type[] { externalSettingsManager.Obj.GetType() })
+                .Invoke(new[] { externalSettingsManager.Obj });
+        }
+
+        public void UpdateLastExtensionsChange()
+            => Obj.UpdateLastExtensionsChange();
+
+        public void Close()
+            => Obj.Close();
+
+        public void Dispose()
+        {
+            Close();
+            (Obj as IDisposable)?.Dispose();
+        }
+
+        private static Type GetRealType()
+        {
+            var majorVersion = typeof(IVsExtensionManager).Assembly.GetName().Version.Major;
+
             var assembly = Assembly.Load($"Microsoft.VisualStudio.ExtensionManager.Implementation, " +
-                $"Version={Program.VsVersion.Major}.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a");
+                $"Version={majorVersion}.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a");
 
             return assembly.GetType("Microsoft.VisualStudio.ExtensionManager.ExtensionManagerService");
         }
-
-        public static IVsExtensionManager Create(object externalSettingsManager)
-        {
-            return (IVsExtensionManager)GetRealType()
-                .GetConstructor(new[] { externalSettingsManager.GetType() })
-                .Invoke(new[] { externalSettingsManager });
-        }
     }
 
-    internal class ExternalSettingsManager
+    internal class ExternalSettingsManager : IDisposable
     {
-        public static Type GetRealType()
+        public ExternalSettingsManager(object obj)
         {
-            var assembly = Assembly.Load($"Microsoft.VisualStudio.Settings{(Program.VsVersion.Major > 10 ? $".{Program.VsVersion.Major}.0" : string.Empty)}, " +
-                $"Version={Program.VsVersion.Major}.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a");
+            Obj = obj;
+        }
+
+        public object Obj { get; }
+
+        public static ExternalSettingsManager CreateForApplication(string applicationPath, string rootSuffix)
+        {
+            return new ExternalSettingsManager(GetRealType()
+                .GetMethod(nameof(CreateForApplication), new[] { typeof(string), typeof(string) })
+                .Invoke(null, new object[] { applicationPath, rootSuffix }));
+        }
+
+        public WritableSettingsStore GetWritableSettingsStore(SettingsScope scope)
+        {
+            var method = Obj.GetType().GetMethods().First(
+                m => m.Name == nameof(GetWritableSettingsStore) &&
+                m.GetParameters().Length == 1 &&
+                m.GetParameters().Single().ParameterType.Name == nameof(SettingsScope));
+
+            return new WritableSettingsStore(method.Invoke(Obj, new object[] { scope }));
+        }
+
+        public void Dispose()
+            => ((IDisposable)Obj).Dispose();
+
+        private static Type GetRealType()
+        {
+            var majorVersion = typeof(IVsExtensionManager).Assembly.GetName().Version.Major;
+
+            var assembly = Assembly.Load($"Microsoft.VisualStudio.Settings{(majorVersion == 10 ? string.Empty : $".{majorVersion}.0")}, " +
+                $"Version={majorVersion}.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a");
 
             return assembly.GetType("Microsoft.VisualStudio.Settings.ExternalSettingsManager");
         }
+    }
 
-        public static dynamic CreateForApplication(string applicationPath, string rootSuffix)
+    internal class ExtensionManagerUtil
+    {
+        private const string ExtensionManagerCollectionPath = "ExtensionManager";
+
+        public static void EnableLoadingExtensionsFromLocalAppData(ExternalSettingsManager externalSettingsManager)
         {
-            return GetRealType()
-                .GetMethod("CreateForApplication", new[] { typeof(string), typeof(string) })
-                .Invoke(null, new object[] { applicationPath, rootSuffix });
+            var settingsStore = externalSettingsManager.GetWritableSettingsStore(SettingsScope.UserSettings);
+
+            if (!settingsStore.CollectionExists(ExtensionManagerCollectionPath))
+                settingsStore.CreateCollection(ExtensionManagerCollectionPath);
+
+            settingsStore.SetBoolean(ExtensionManagerCollectionPath, "EnableAdminExtensions", true);
         }
+
+        public static void RemovePendingExtensionDeletion(ExternalSettingsManager externalSettingsManager, IExtensionHeader extensionHeader)
+        {
+            var settingsStore = externalSettingsManager.GetWritableSettingsStore(SettingsScope.UserSettings);
+            var collectionPath = $"{ExtensionManagerCollectionPath}\\PendingDeletions";
+
+            if (settingsStore.CollectionExists(collectionPath))
+            {
+                var idver = $"{extensionHeader.Identifier},{extensionHeader.Version}";
+
+                if (settingsStore.PropertyExists(collectionPath, idver))
+                    settingsStore.DeleteProperty(collectionPath, idver);
+            }
+        }
+
+        internal static bool IsValidProcessFileName(string applicationPath, out string expectedFileName)
+        {
+            var productVersion = Version.Parse(FileVersionInfo.GetVersionInfo(applicationPath).ProductVersion);
+
+            if (productVersion.Major == 15 && productVersion.Minor == 8)
+            {
+                try
+                {
+                    ExtensionManagerService.VsProductVersion = productVersion.ToString();
+                    var value = ExtensionManagerService.VsProductVersion;
+                }
+                catch
+                {
+                    expectedFileName = "ServiceHub.VSDetouredHost.exe";
+                    return false; // [15.8.3-15.8.5]
+                }
+            }
+
+            expectedFileName = null;
+            return true;
+        }
+    }
+
+    internal class WritableSettingsStore
+    {
+        private dynamic obj;
+
+        public WritableSettingsStore(dynamic obj)
+        {
+            var type = (Type)obj.GetType();
+
+            while (type.BaseType != null)
+            {
+                if (type.BaseType.FullName == "Microsoft.VisualStudio.Settings.WritableSettingsStore")
+                {
+                    this.obj = obj;
+                    return;
+                }
+            }
+
+            throw new InvalidCastException();
+        }
+
+        public bool CollectionExists(string collectionPath)
+            => obj.CollectionExists(collectionPath);
+
+        public IEnumerable<string> GetPropertyNames(string collectionPath)
+            => obj.GetPropertyNames(collectionPath);
+
+        public bool PropertyExists(string collectionPath, string propertyName)
+            => obj.PropertyExists(collectionPath, propertyName);
+
+        public bool DeleteProperty(string collectionPath, string propertyName)
+            => obj.DeleteProperty(collectionPath, propertyName);
+
+        public void CreateCollection(string collectionPath)
+            => obj.CreateCollection(collectionPath);
+
+        public void SetBoolean(string collectionPath, string propertyName, bool value)
+            => obj.SetBoolean(collectionPath, propertyName, value);
+    }
+
+    internal enum SettingsScope
+    {
+        Configuration = 1,
+        UserSettings = 2,
+        Remote = 4,
     }
 
     internal class CommandLineParser
@@ -231,65 +470,38 @@ namespace VsixTesting.ExtensionInstaller
         {
             for (var i = 0; i < args.Length; ++i)
             {
-                if (!args[i].Equals($"--{name}", StringComparison.OrdinalIgnoreCase))
+                if (!args[i].Equals($"/{name}", StringComparison.OrdinalIgnoreCase))
                     continue;
 
                 while (++i < args.Length)
                 {
-                    if (args[i].StartsWith("--"))
+                    if (args[i].StartsWith("/"))
                         yield break;
                     yield return args[i];
                 }
             }
         }
 
-        internal static string One(string[] args, string name)
-            => Many(args, name).FirstOrDefault() ?? throw new ArgumentException($"Argument --{name} is required.");
+        internal static string One(string[] args, string name, string @default = null)
+            => Many(args, name).FirstOrDefault() ?? @default ?? throw new ArgumentException($"/{name} is required.");
+
+        internal static bool Contains(string[] args, string name)
+            => args.Contains($"/{name}", StringComparer.OrdinalIgnoreCase) ? true : false;
     }
 
     internal static class DirectoryUtil
     {
-        public static bool TryDeleteHard(string path, bool recursive, int timeoutMs = 10_000)
+        public static void DeleteHard(string path, bool recursive, int timeoutMs = 10_000)
         {
-            try
-            {
-                try
-                {
-                    Directory.Delete(path, recursive);
-                }
-                catch
-                {
-                    foreach (var file in Directory.GetFiles(path))
-                    {
-                        try
-                        {
-                            File.Delete(file);
-                        }
-                        catch
-                        {
-                            try
-                            {
-                                foreach (var process in ResourceManagerUtil.GetProcessesLockingResources(file))
-                                {
-                                    process.CloseMainWindow();
-                                    process.WaitForExit(timeoutMs);
-                                }
-                            }
-                            catch
-                            {
-                            }
-                        }
-                    }
+            var processes = ResourceManagerUtil.GetProcessesLockingResources(Directory.GetFiles(path));
 
-                    Directory.Delete(path, recursive);
-                }
-
-                return true;
-            }
-            catch
+            foreach (var process in processes)
             {
-                return false;
+                process.CloseMainWindow();
+                process.WaitForExit(timeoutMs);
             }
+
+            Directory.Delete(path, recursive);
         }
     }
 
@@ -307,24 +519,6 @@ namespace VsixTesting.ExtensionInstaller
             }
 
             return false;
-        }
-    }
-
-    internal static class PathUtil
-    {
-        public static bool ArePathEqual(string path1, string path2, StringComparison comparisonType = StringComparison.OrdinalIgnoreCase)
-            => string.Equals(NormalizePath(path1), NormalizePath(path2), comparisonType);
-
-        private static string NormalizePath(string path)
-        {
-            path = Path.GetFullPath(path);
-            for (var i = path.Length - 1; i >= 0; i--)
-            {
-                if (path[i] != Path.DirectorySeparatorChar && path[i] != Path.AltDirectorySeparatorChar)
-                    return path.Substring(0, i + 1);
-            }
-
-            return string.Empty;
         }
     }
 
@@ -448,5 +642,11 @@ namespace VsixTesting.ExtensionInstaller
             [MarshalAs(UnmanagedType.Bool)]
             public bool bRestartable;
         }
+    }
+
+    internal static class AppDomainExtensions
+    {
+        public static T CreateInstanceFromAndUnwrap<T>(this AppDomain domain)
+            => (T)domain.CreateInstanceFromAndUnwrap(typeof(T).Assembly.Location, typeof(T).FullName);
     }
 }

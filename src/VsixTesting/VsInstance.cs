@@ -39,16 +39,15 @@ namespace VsixTesting
         {
             await diagnostics.RunAsync("Preparing Instance", async output =>
             {
-                var installResult = default((int InstallCount, bool HasSettingsFile, string Output));
                 var invokerAssembly = Assembly.GetExecutingAssembly();
+                var isProfileInitialized = false;
 
                 using (var invoker = new TempFile(EmbeddedResourceUtil.ExtractResource(invokerAssembly, "VsixTesting.Invoker.vsix")))
                 {
                     EmbeddedResourceUtil.ApplyDateTime(invoker.Path, invokerAssembly, "VsixTesting.Invoker.vsix");
 
-                    installResult = await VisualStudioUtil.InstallExtensionsAsync(
-                        hive,
-                        extensionsToInstall.Concat(new[] { invoker.Path }));
+                    isProfileInitialized = await VisualStudioUtil.IsProfileInitializedAsync(hive);
+                    var installResult = await VisualStudioUtil.InstallExtensionsAsync(hive, extensionsToInstall.Concat(new[] { invoker.Path }));
 
                     output.WriteLine(installResult.Output);
 
@@ -61,7 +60,7 @@ namespace VsixTesting
                     }
                 }
 
-                if (!installResult.HasSettingsFile || resetSettings)
+                if (!isProfileInitialized || resetSettings)
                 {
                     output.WriteLine("Resetting settings");
                     await VisualStudioUtil.ResetSettingsAsync(hive);

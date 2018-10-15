@@ -158,7 +158,19 @@ namespace Vs
         public static async Task ResetSettingsAsync(VsHive hive, string settingsName = "General.vssettings")
             => await StartProcess(hive, $"/resetsettings {settingsName} /command \"File.Exit\"").WaitForExitAsync();
 
-        public static async Task<(int InstallCount, bool HasSettingsFile, string Output)> InstallExtensionsAsync(VsHive hive, IEnumerable<string> extensions)
+        public static async Task<(int InstallCount, string Output)> InstallExtensionsAsync(VsHive hive, IEnumerable<string> extensions)
+        {
+            var (result, output) = await RunExtensionInstallerAsync(hive, new[] { "/Install" }.Concat(extensions.Select(e => Quote(e))));
+            return (result, output);
+        }
+
+        public static async Task<bool> IsProfileInitializedAsync(VsHive hive)
+        {
+            var (result, _) = await RunExtensionInstallerAsync(hive, new[] { "/IsProfileInitialized" });
+            return result == 1 ? true : false;
+        }
+
+        public static async Task<(int Result, string Output)> RunExtensionInstallerAsync(VsHive hive, IEnumerable<string> args)
         {
             using (var visualStudioInstaller = new TempFile(EmbeddedResourceUtil.ExtractResource(Assembly.GetExecutingAssembly(), "VsixTesting.ExtensionInstaller.exe")))
             {
@@ -167,10 +179,9 @@ namespace Vs
                     FileName = visualStudioInstaller.Path,
                     Arguments = string.Join(" ", new string[]
                     {
-                        "--ApplicationPath", Quote(hive.ApplicationPath),
-                        "--RootSuffix", hive.RootSuffix,
-                        "--ExtensionPaths",
-                    }.Concat(extensions.Select(e => Quote(e)))),
+                        "/ApplicationPath", Quote(hive.ApplicationPath),
+                        "/RootSuffix", hive.RootSuffix,
+                    }.Concat(args)),
                     CreateNoWindow = true,
                     UseShellExecute = false,
                     RedirectStandardError = true,
@@ -179,21 +190,11 @@ namespace Vs
 
                 await process.WaitForExitAsync();
 
-                var result = process.ExitCode;
-                var hasSettingsFile = true;
-
-                if (result < 0)
+                if (process.ExitCode < 0)
                     throw new Exception(process.StandardError.ReadToEnd());
-                else if (result >= 9999)
-                {
-                    result -= 9999;
-                    hasSettingsFile = false;
-                }
 
-                return (result, hasSettingsFile, process.StandardOutput.ReadToEnd());
+                return (process.ExitCode, process.StandardOutput.ReadToEnd());
             }
-
-            string Quote(string str) => $"\"{str}\"";
         }
 
         internal static bool IsValidInstallationDirectory(string installationPath)
@@ -204,5 +205,7 @@ namespace Vs
 
         private static string GetRootSuffixAsArgument(string rootSuffix)
             => string.IsNullOrWhiteSpace(rootSuffix) ? string.Empty : $"/rootSuffix {rootSuffix}";
+
+        private static string Quote(string str) => $"\"{str}\"";
     }
 }
