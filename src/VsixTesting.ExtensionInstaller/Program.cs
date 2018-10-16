@@ -252,7 +252,7 @@ namespace VsixTesting.ExtensionInstaller
         {
             return
                 installedExtension.Header.Version == installableExtension.Header.Version &&
-                File.GetLastWriteTime(GetManifestPath(installedExtension)) > File.GetLastWriteTime(installableExtension.PackagePath) &&
+                File.GetLastWriteTime(GetManifestPath(installedExtension)) >= File.GetLastWriteTime(installableExtension.PackagePath) &&
                 installedExtension.InstalledPerMachine == false;
         }
 
