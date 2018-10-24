@@ -24,9 +24,6 @@ namespace Xunit
         public bool SecureChannel { get; set; }
 
         /// <inheritdoc />
-        public bool AllowPreview { get; set; }
-
-        /// <inheritdoc />
         public string ExtensionsDirectory { get; set; }
 
         /// <inheritdoc />
