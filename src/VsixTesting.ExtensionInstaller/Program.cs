@@ -376,7 +376,7 @@ namespace VsixTesting.ExtensionInstaller
         {
             var majorVersion = typeof(IVsExtensionManager).Assembly.GetName().Version.Major;
 
-            var assembly = Assembly.Load($"Microsoft.VisualStudio.Settings{(majorVersion == 10 ? string.Empty : $".{majorVersion}.0")}, " +
+            var assembly = Assembly.Load($"Microsoft.VisualStudio.Settings.15.0, " +
                 $"Version={majorVersion}.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a");
 
             return assembly.GetType("Microsoft.VisualStudio.Settings.ExternalSettingsManager");
@@ -415,7 +415,7 @@ namespace VsixTesting.ExtensionInstaller
         {
             var productVersion = Version.Parse(FileVersionInfo.GetVersionInfo(applicationPath).ProductVersion);
 
-            if (productVersion.Major == 15 && productVersion.Minor == 8)
+            if ((productVersion.Major == 15 && productVersion.Minor == 8) || (productVersion.Major == 16 && productVersion.Minor == 0))
             {
                 try
                 {
