@@ -80,27 +80,13 @@ namespace VsixTesting.XunitX.Internal
 
         internal static IEnumerable<VsInstallation> FilterInstallations(IEnumerable<VsInstallation> installations, VsTestSettings settings, StringBuilder output = null)
         {
-            var majorVersions = new HashSet<int>();
-
-            foreach (var installation in settings.PreferLowestMinorVersion == false
-                ? installations.OrderByDescending(x => x.Version)
-                : installations.OrderBy(x => x.Version))
+            foreach (var group in installations.GroupBy(i => i.Version.Major).OrderBy(g => g.Key))
             {
-                if (!settings.AllowPreview && installation.Name.Contains("-pre"))
-                {
-                    output?.AppendLine($"Skipping {installation.Path} because {nameof(ITestSettings.AllowPreview)} is set to false.");
-                    continue;
-                }
+                var installation = group.OrderBy(i => i.Name.Contains("-pre")).First();
 
                 if (!settings.SupportedVersionRanges.Any(range => installation.Version >= range.Minimum && installation.Version <= range.Maximum))
                 {
                     output?.AppendLine($"Skipping {installation.Path} because the version {installation.Version} is not within any specified version range {string.Join(";", settings.SupportedVersionRanges)}.");
-                    continue;
-                }
-
-                if (!majorVersions.Add(installation.Version.Major))
-                {
-                    output?.AppendLine($"Skipping {installation.Path} because an instance for the same major version has been found already.");
                     continue;
                 }
 

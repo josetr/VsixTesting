@@ -33,11 +33,6 @@ namespace VsixTesting
         bool SecureChannel { get; set; }
 
         /// <summary>
-        /// Gets or sets a value indicating whether Visual Studio Preview versions are allowed.
-        /// </summary>
-        bool AllowPreview { get; set; }
-
-        /// <summary>
         /// Gets or sets a directory path containing .vsix packages to install before launching the Visual Studio Instance.
         /// </summary>
         /// <remarks>

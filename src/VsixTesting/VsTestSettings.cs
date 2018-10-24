@@ -4,7 +4,6 @@ namespace VsixTesting
 {
     using System;
     using System.Collections.Generic;
-    using System.IO;
     using System.Linq;
     using Vs;
 
@@ -17,8 +16,6 @@ namespace VsixTesting
         public bool DebugMixedMode { get; set; } = false;
         public bool ResetSettings { get; set; } = false;
         public bool SecureChannel { get; set; } = false;
-        public bool AllowPreview { get; set; } = false;
-        public bool PreferLowestMinorVersion { get; set; } = true;
         public string ExtensionsDirectory { get; set; } = string.Empty;
         public string ScreenshotsDirectory { get; set; } = "Screenshots";
         public bool ReuseInstance { get; set; } = true;
