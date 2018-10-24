@@ -7,7 +7,6 @@ namespace VsixTesting.XunitX.Internal
     using System.Linq;
     using System.Reflection;
     using VsixTesting;
-    using Xunit;
     using Xunit.Abstractions;
     using Xunit.Sdk;
 
@@ -34,9 +33,6 @@ namespace VsixTesting.XunitX.Internal
 
                 SecureChannel = GetTestAttributeArgument(
                     nameof(ITestSettings.SecureChannel), defaults.SecureChannel),
-
-                AllowPreview = GetTestAttributeArgument(
-                    nameof(ITestSettings.AllowPreview), defaults.AllowPreview),
 
                 ExtensionsDirectory = NormalizeDirectory(
                     GetTestAttributeArgument(
