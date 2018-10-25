@@ -19,7 +19,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		VsixTesting.png = VsixTesting.png
 	EndProjectSection
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VsixTesting.ExtensionInstaller", "src\VsixTesting.ExtensionInstaller\VsixTesting.ExtensionInstaller.csproj", "{51DB3A8A-C551-4D8D-A7A5-FCA2B76DE4B1}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VsixTesting.Installer", "src\VsixTesting.Installer\VsixTesting.Installer.csproj", "{51DB3A8A-C551-4D8D-A7A5-FCA2B76DE4B1}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VsixTesting.Xunit", "src\VsixTesting.Xunit\VsixTesting.Xunit.csproj", "{5B2D4187-0A44-4FD1-9B17-4D090F0001D3}"
 	ProjectSection(ProjectDependencies) = postProject

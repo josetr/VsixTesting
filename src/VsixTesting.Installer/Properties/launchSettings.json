@@ -1,26 +1,26 @@
 {
   "profiles": {
-    "VsixTesting.ExtensionInstaller.Install": {
+    "VsixTesting.Installer.Install": {
       "commandName": "Project",
       "commandLineArgs": "/ApplicationPath \"$(DevEnvDir)devenv.exe\" /RootSuffix Exp /Install \"$(SolutionDir)bin\\VsixTesting.Invoker\\$(Configuration)\\net452\\VsixTesting.Invoker.vsix\""
     },
-    "VsixTesting.ExtensionInstaller.Uninstall": {
+    "VsixTesting.Installer.Uninstall": {
       "commandName": "Project",
       "commandLineArgs": "/ApplicationPath \"$(DevEnvDir)devenv.exe\" /RootSuffix Exp /Uninstall 9eef3d53-333f-4be2-900e-a1f104fc325a"
     },
-    "VsixTesting.ExtensionInstaller.IsProfileInitialized": {
+    "VsixTesting.Installer.IsProfileInitialized": {
       "commandName": "Project",
       "commandLineArgs": "/ApplicationPath \"$(DevEnvDir)devenv.exe\" /RootSuffix Exp /IsProfileInitialized"
     },
-    "VsixTesting.ExtensionInstaller.2012.Install": {
+    "VsixTesting.Installer.2012.Install": {
       "commandName": "Project",
       "commandLineArgs": "/ApplicationPath \"C:\\Program Files (x86)\\Microsoft Visual Studio 11.0\\Common7\\IDE\\devenv.exe\" /RootSuffix Exp /Install \"$(SolutionDir)bin\\VsixTesting.Invoker\\$(Configuration)\\net452\\VsixTesting.Invoker.vsix\""
     },
-    "VsixTesting.ExtensionInstaller.2012.Uninstall": {
+    "VsixTesting.Installer.2012.Uninstall": {
       "commandName": "Project",
       "commandLineArgs": "/ApplicationPath \"C:\\Program Files (x86)\\Microsoft Visual Studio 11.0\\Common7\\IDE\\devenv.exe\" /RootSuffix Exp /Uninstall 9eef3d53-333f-4be2-900e-a1f104fc325a"
     },
-    "VsixTesting.ExtensionInstaller.2012.IsProfileInitialized": {
+    "VsixTesting.Installer.2012.IsProfileInitialized": {
       "commandName": "Project",
       "commandLineArgs": "/ApplicationPath \"C:\\Program Files (x86)\\Microsoft Visual Studio 11.0\\Common7\\IDE\\devenv.exe\" /RootSuffix Exp /IsProfileInitialized"
     }

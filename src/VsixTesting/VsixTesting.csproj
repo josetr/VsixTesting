@@ -10,9 +10,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\VsixTesting.ExtensionInstaller\VsixTesting.ExtensionInstaller.csproj" PrivateAssets="all" ReferenceOutputAssembly="false" />
+    <ProjectReference Include="..\VsixTesting.Installer\VsixTesting.Installer.csproj" PrivateAssets="all" ReferenceOutputAssembly="false" />
     <ProjectReference Include="..\VsixTesting.Invoker\VsixTesting.Invoker.csproj" PrivateAssets="all" ReferenceOutputAssembly="false" />
-    <EmbeddedResource Include="..\..\bin\VsixTesting.ExtensionInstaller\$(Configuration)\net452\VsixTesting.ExtensionInstaller.exe" LogicalName="%(FileName)%(Extension)" Link="Resources/%(FileName)%(Extension)" />
+    <EmbeddedResource Include="..\..\bin\VsixTesting.Installer\$(Configuration)\net452\VsixTesting.Installer.exe" LogicalName="%(FileName)%(Extension)" Link="Resources/%(FileName)%(Extension)" />
     <EmbeddedResource Include="..\..\bin\VsixTesting.Invoker\$(Configuration)\net452\VsixTesting.Invoker.vsix" LogicalName="%(FileName)%(Extension)" Link="Resources/%(FileName)%(Extension)" />
   </ItemGroup>
 

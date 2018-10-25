@@ -172,7 +172,7 @@ namespace Vs
 
         public static async Task<(int Result, string Output)> RunExtensionInstallerAsync(VsHive hive, IEnumerable<string> args)
         {
-            using (var visualStudioInstaller = new TempFile(EmbeddedResourceUtil.ExtractResource(Assembly.GetExecutingAssembly(), "VsixTesting.ExtensionInstaller.exe")))
+            using (var visualStudioInstaller = new TempFile(EmbeddedResourceUtil.ExtractResource(Assembly.GetExecutingAssembly(), "VsixTesting.Installer.exe")))
             {
                 var process = Process.Start(new ProcessStartInfo
                 {

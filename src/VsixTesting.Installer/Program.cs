@@ -4,7 +4,7 @@
 #pragma warning disable SA1402 // File may only contain a single type
 #pragma warning disable SA1201 // Elements should appear in the correct order
 
-namespace VsixTesting.ExtensionInstaller
+namespace VsixTesting.Installer
 {
     using System;
     using System.Collections.Generic;
@@ -15,7 +15,7 @@ namespace VsixTesting.ExtensionInstaller
     using System.Runtime.InteropServices;
     using System.Text;
     using Microsoft.VisualStudio.ExtensionManager;
-    using static VsixTesting.ExtensionInstaller.RestartManager;
+    using static VsixTesting.Installer.RestartManager;
     using FILETIME = System.Runtime.InteropServices.ComTypes.FILETIME;
 
     internal class Program : MarshalByRefObject
