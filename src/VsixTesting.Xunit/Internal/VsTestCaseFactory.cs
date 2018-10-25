@@ -6,10 +6,12 @@ namespace VsixTesting.XunitX.Internal
     using System;
     using System.Collections.Concurrent;
     using System.Collections.Generic;
+    using System.Diagnostics;
     using System.Linq;
     using System.Text;
     using System.Threading;
     using Vs;
+    using VsixTesting.Utilities;
     using Xunit.Abstractions;
     using Xunit.Sdk;
 
@@ -20,6 +22,9 @@ namespace VsixTesting.XunitX.Internal
 
         private static Lazy<IEnumerable<VsInstallation>> Installations { get; }
             = new Lazy<IEnumerable<VsInstallation>>(() => VisualStudioUtil.FindInstallations());
+
+        private static Lazy<Process> ParentVsProcess { get; }
+            = new Lazy<Process>(() => ProcessUtil.TryGetParentProcess(Process.GetCurrentProcess(), p => p.ProcessName.Equals(VisualStudioUtil.ProcessName, StringComparison.OrdinalIgnoreCase)));
 
         public static IEnumerable<IXunitTestCase> CreateTheoryTestCases(ITestMethod testMethod, TestMethodDisplay testMethodDisplay, IMessageSink diagnosticMessageSink)
         {
@@ -80,18 +85,26 @@ namespace VsixTesting.XunitX.Internal
 
         internal static IEnumerable<VsInstallation> FilterInstallations(IEnumerable<VsInstallation> installations, VsTestSettings settings, StringBuilder output = null)
         {
+            var parentVsInstallation = ParentVsProcess.Value == null ? null
+                : installations.FirstOrDefault(i => i.ApplicationPath.Equals(ParentVsProcess.Value.MainModule.FileName, StringComparison.OrdinalIgnoreCase));
+
             foreach (var group in installations.GroupBy(i => i.Version.Major).OrderBy(g => g.Key))
             {
-                var installation = group.OrderBy(i => i.Name.Contains("-pre")).First();
-
-                if (!settings.SupportedVersionRanges.Any(range => installation.Version >= range.Minimum && installation.Version <= range.Maximum))
+                foreach (var installation in group.OrderBy(i => i.Name.Contains("-pre")))
                 {
-                    output?.AppendLine($"Skipping {installation.Path} because the version {installation.Version} is not within any specified version range {string.Join(";", settings.SupportedVersionRanges)}.");
-                    continue;
-                }
+                    if (!IsVersionWithinRange(installation))
+                    {
+                        output?.AppendLine($"Skipping {installation.Path} because the version {installation.Version} is not within any specified version range {string.Join(";", settings.SupportedVersionRanges)}.");
+                        continue;
+                    }
 
-                yield return installation;
+                    yield return parentVsInstallation != null && IsVersionWithinRange(parentVsInstallation) ? parentVsInstallation : installation;
+                    break;
+                }
             }
+
+            bool IsVersionWithinRange(VsInstallation installation) =>
+                settings.SupportedVersionRanges.Any(range => installation.Version >= range.Minimum && installation.Version <= range.Maximum);
         }
 
         internal class Instance
