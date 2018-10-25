@@ -2,10 +2,18 @@
   <PropertyGroup>
     <TargetFramework>net452</TargetFramework>
     <OutputType>Exe</OutputType>
-    <IsPackable>False</IsPackable>
+    <IsPackable>true</IsPackable>
     <Prefer32Bit>true</Prefer32Bit>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <DocumentationFile>$(OutputPath)$(AssemblyName).xml</DocumentationFile>
+    <PackageTags>VisualStudio, Extension, Installer, VSIXInstaller</PackageTags>
+    <Description>Command Line Utility for installing Visual Studio Extensions.</Description>
+    <IsTool>true</IsTool>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Content Include="VsixTesting.Installer.props" PackagePath="build" />
+  </ItemGroup>
 
   <ItemGroup>
     <Reference Include="System.IO.Compression" />
@@ -16,5 +24,6 @@
       <SpecificVersion>false</SpecificVersion>
       <Private>False</Private>
     </Reference>
+    <PackageReference Include="Nerdbank.GitVersioning" Version="2.1.65" PrivateAssets="all" />
   </ItemGroup>
 </Project>
