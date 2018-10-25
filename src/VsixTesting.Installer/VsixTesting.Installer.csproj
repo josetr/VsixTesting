@@ -25,5 +25,8 @@
       <Private>False</Private>
     </Reference>
     <PackageReference Include="Nerdbank.GitVersioning" Version="2.1.65" PrivateAssets="all" />
+    <PackageReference Include="EnvDTE" Version="8.0.0" />
+    <PackageReference Include="EnvDTE80" Version="8.0.0" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.VisualStudio.SDK.EmbedInteropTypes" Version="15.0.17" PrivateAssets="all" />
   </ItemGroup>
 </Project>
