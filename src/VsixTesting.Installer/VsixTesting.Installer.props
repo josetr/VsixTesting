@@ -1,0 +1,5 @@
+﻿<Project>
+  <PropertyGroup>
+    <VsixTestingInstallerPath>$(MSBuildThisFileDirectory)../tools/VsixTesting.Installer.exe</VsixTestingInstallerPath>
+  </PropertyGroup>
+</Project>
