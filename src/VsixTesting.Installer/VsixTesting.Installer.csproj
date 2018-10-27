@@ -2,10 +2,9 @@
   <PropertyGroup>
     <TargetFramework>net452</TargetFramework>
     <OutputType>Exe</OutputType>
-    <IsPackable>true</IsPackable>
     <Prefer32Bit>true</Prefer32Bit>
-    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <DocumentationFile>$(OutputPath)$(AssemblyName).xml</DocumentationFile>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageTags>VisualStudio, Extension, Installer, VSIXInstaller</PackageTags>
     <Description>Command Line Utility for installing Visual Studio Extensions.</Description>
     <IsTool>true</IsTool>
@@ -25,7 +24,7 @@
       <Private>False</Private>
     </Reference>
     <PackageReference Include="Nerdbank.GitVersioning" Version="2.1.65" PrivateAssets="all" />
-    <PackageReference Include="EnvDTE" Version="8.0.0" />
+    <PackageReference Include="EnvDTE" Version="8.0.0" PrivateAssets="all" />
     <PackageReference Include="EnvDTE80" Version="8.0.0" PrivateAssets="all" />
     <PackageReference Include="Microsoft.VisualStudio.SDK.EmbedInteropTypes" Version="15.0.17" PrivateAssets="all" />
   </ItemGroup>
