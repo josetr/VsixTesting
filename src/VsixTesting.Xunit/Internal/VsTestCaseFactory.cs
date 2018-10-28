@@ -67,7 +67,7 @@ namespace VsixTesting.XunitX.Internal
         internal static IEnumerable<Instance> GetInstances(IEnumerable<VsInstallation> installations, ITestMethod testMethod, VsTestSettings testSettings, ConcurrentDictionary<string, Instance> instances)
         {
             var output = new StringBuilder();
-            installations = FilterInstallations(installations, testSettings, output);
+            installations = FilterInstallations(installations, testSettings, output, ParentVsProcess.Value?.MainModule?.FileName);
 
             if (!installations.Any())
                 throw new InvalidOperationException("Cannot find a viable Visual Studio Instance for the specified test case.\r\n" + output);
@@ -85,28 +85,24 @@ namespace VsixTesting.XunitX.Internal
             }
         }
 
-        internal static IEnumerable<VsInstallation> FilterInstallations(IEnumerable<VsInstallation> installations, VsTestSettings settings, StringBuilder output = null)
+        internal static IEnumerable<VsInstallation> FilterInstallations(IEnumerable<VsInstallation> installations, VsTestSettings settings, StringBuilder output = null, string preferedAppPath = null)
         {
-            var parentVsInstallation = ParentVsProcess.Value == null ? null
-                : installations.FirstOrDefault(i => i.ApplicationPath.Equals(ParentVsProcess.Value.MainModule.FileName, StringComparison.OrdinalIgnoreCase));
-
             foreach (var group in installations.GroupBy(i => i.Version.Major).OrderBy(g => g.Key))
             {
-                foreach (var installation in group.OrderBy(i => i.Name.Contains("-pre")))
+                foreach (var installation in group
+                    .OrderBy(i => !i.ApplicationPath.Equals(preferedAppPath, StringComparison.OrdinalIgnoreCase))
+                    .ThenBy(i => i.Name.Contains("-pre")))
                 {
-                    if (!IsVersionWithinRange(installation))
+                    if (!settings.SupportedVersionRanges.Any(range => installation.Version >= range.Minimum && installation.Version <= range.Maximum))
                     {
                         output?.AppendLine($"Skipping {installation.Path} because the version {installation.Version} is not within any specified version range {string.Join(";", settings.SupportedVersionRanges)}.");
                         continue;
                     }
 
-                    yield return parentVsInstallation != null && IsVersionWithinRange(parentVsInstallation) ? parentVsInstallation : installation;
+                    yield return installation;
                     break;
                 }
             }
-
-            bool IsVersionWithinRange(VsInstallation installation) =>
-                settings.SupportedVersionRanges.Any(range => installation.Version >= range.Minimum && installation.Version <= range.Maximum);
         }
 
         internal class Instance
