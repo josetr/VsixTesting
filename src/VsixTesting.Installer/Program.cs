@@ -13,17 +13,16 @@ namespace VsixTesting.Installer
     using System.Linq;
     using System.Reflection;
     using System.Runtime.InteropServices;
-    using System.Runtime.InteropServices.ComTypes;
     using System.Text;
-    using System.Text.RegularExpressions;
-    using EnvDTE80;
     using Microsoft.VisualStudio.ExtensionManager;
+    using Vs;
+    using VsixTesting.Utilities;
     using static VsixTesting.Installer.RestartManager;
-    using DTE = EnvDTE.DTE;
     using FILETIME = System.Runtime.InteropServices.ComTypes.FILETIME;
 
     internal class Program : MarshalByRefObject
     {
+        [STAThread]
         public static int Main(string[] args)
         {
             var applicationPath = CommandLineParser.One(args, "ApplicationPath");
@@ -54,11 +53,14 @@ namespace VsixTesting.Installer
                         {
                             var extensionPaths = CommandLineParser.Many(args, "InstallAndStart");
                             var result = Installer.Install(applicationPath, rootSuffix, extensionPaths, allUsers: false);
-                            var dte = VisualStudioUtil.GetDteFromDebuggedProcess(Process.GetCurrentProcess());
-                            var process = Process.Start(applicationPath, $"/RootSuffix {rootSuffix}");
-                            if (dte != null)
-                               VisualStudioUtil.AttachDebugger(dte, process);
-                            return result;
+                            using (var retryFilter = new RetryMessageFilter())
+                            {
+                                var dte = VisualStudioUtil.GetDteFromDebuggedProcess(Process.GetCurrentProcess());
+                                var process = Process.Start(applicationPath, $"/RootSuffix {rootSuffix}");
+                                if (dte != null)
+                                   VisualStudioUtil.AttachDebugger(dte, process);
+                                return result;
+                            }
                         }
                     },
                     {
@@ -140,15 +142,21 @@ namespace VsixTesting.Installer
         {
             var executablePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, filename);
             File.Copy(Process.GetCurrentProcess().MainModule.FileName, executablePath, true);
-            var process = Process.Start(new ProcessStartInfo
+            using (var retryFilter = new RetryMessageFilter())
             {
-                FileName = executablePath,
-                Arguments = Environment.CommandLine,
-                UseShellExecute = false,
-            });
-            process.WaitForExit();
-            FileUtil.TryDelete(executablePath);
-            return process.ExitCode;
+                var dte = VisualStudioUtil.GetDteFromDebuggedProcess(Process.GetCurrentProcess());
+                var process = Process.Start(new ProcessStartInfo
+                {
+                    FileName = executablePath,
+                    Arguments = Environment.CommandLine,
+                    UseShellExecute = false,
+                });
+                if (dte != null)
+                    VisualStudioUtil.AttachDebugger(dte, process);
+                process.WaitForExit();
+                FileUtil.TryDelete(executablePath);
+                return process.ExitCode;
+            }
         }
 
         internal class AssemblyResolver : MarshalByRefObject
@@ -664,117 +672,5 @@ namespace VsixTesting.Installer
     {
         public static T CreateInstanceFromAndUnwrap<T>(this AppDomain domain)
             => (T)domain.CreateInstanceFromAndUnwrap(typeof(T).Assembly.Location, typeof(T).FullName);
-    }
-
-    internal class VisualStudioUtil
-    {
-        public const string ProcessName = "devenv";
-
-        public static DTE GetDTE(Process process)
-        {
-            string namePattern = $@"!VisualStudio\.DTE\.(\d+\.\d+):{process.Id.ToString()}";
-            return (DTE)RunningObjectTable.GetRunningObjects(namePattern).FirstOrDefault();
-        }
-
-        public static IEnumerable<DTE> GetRunningDTEs()
-        {
-            foreach (var process in Process.GetProcessesByName(ProcessName))
-            {
-                if (GetDTE(process) is DTE dte)
-                    yield return dte;
-            }
-        }
-
-        public static DTE GetDteFromDebuggedProcess(Process process)
-        {
-            foreach (var dte in GetRunningDTEs())
-            {
-                try
-                {
-                    if (dte.Debugger.CurrentMode != EnvDTE.dbgDebugMode.dbgDesignMode)
-                    {
-                        foreach (Process2 debuggedProcess in dte.Debugger.DebuggedProcesses)
-                        {
-                            if (debuggedProcess.ProcessID == process.Id)
-                                return dte;
-                        }
-                    }
-                }
-                catch (COMException)
-                {
-                    continue;
-                }
-            }
-
-            return null;
-        }
-
-        public static void AttachDebugger(DTE dte, Process targetProcess, string engine = "Managed")
-        {
-            dte?.Debugger
-                .LocalProcesses
-                .Cast<Process2>()
-                .FirstOrDefault(p => p.ProcessID == targetProcess.Id)
-                ?.Attach2(engine);
-        }
-    }
-
-    internal static class RunningObjectTable
-    {
-        private const int S_OK = 0;
-
-        public static IEnumerable<object> GetRunningObjects(string namePattern = ".*")
-        {
-            IEnumMoniker enumMoniker = null;
-            IRunningObjectTable rot = null;
-            IBindCtx bindCtx = null;
-
-            try
-            {
-                Marshal.ThrowExceptionForHR(Ole32.CreateBindCtx(0, out bindCtx));
-                bindCtx.GetRunningObjectTable(out rot);
-                rot.EnumRunning(out enumMoniker);
-
-                var moniker = new IMoniker[1];
-                var fetched = IntPtr.Zero;
-
-                while (enumMoniker.Next(1, moniker, fetched) == S_OK)
-                {
-                    object runningObject = null;
-                    try
-                    {
-                        var roMoniker = moniker.First();
-                        if (roMoniker == null)
-                            continue;
-                        roMoniker.GetDisplayName(bindCtx, null, out var name);
-                        if (!Regex.IsMatch(name, namePattern))
-                            continue;
-                        Marshal.ThrowExceptionForHR(rot.GetObject(roMoniker, out runningObject));
-                    }
-                    catch (UnauthorizedAccessException)
-                    {
-                        continue;
-                    }
-
-                    if (runningObject != null)
-                        yield return runningObject;
-                }
-            }
-            finally
-            {
-                if (enumMoniker != null)
-                    Marshal.ReleaseComObject(enumMoniker);
-                if (rot != null)
-                    Marshal.ReleaseComObject(rot);
-                if (bindCtx != null)
-                    Marshal.ReleaseComObject(bindCtx);
-            }
-        }
-    }
-
-    internal static class Ole32
-    {
-        [DllImport("ole32.dll")]
-        public static extern int CreateBindCtx(uint reserved, out IBindCtx ppbc);
     }
 }

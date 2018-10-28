@@ -12,6 +12,11 @@
 
   <ItemGroup>
     <Content Include="VsixTesting.Installer.props" PackagePath="build" />
+    <Compile Include="../VsixTesting/Interop/Ole32.cs" />
+    <Compile Include="../VsixTesting/Interop/Kernel32.cs" />
+    <Compile Include="../VsixTesting/Common/RunningObjectTable.cs" />
+    <Compile Include="../VsixTesting/Utilities/RetryMessageFilter.cs" />
+    <Compile Include="../VsixTesting/Vs/VisualStudioUtil.Dte.cs" />
   </ItemGroup>
 
   <ItemGroup>

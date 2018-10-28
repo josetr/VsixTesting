@@ -1,6 +1,7 @@
 ﻿// Copyright (c) 2018 Jose Torres. All rights reserved. Licensed under the Apache License, Version 2.0. See LICENSE.md file in the project root for full license information.
 #pragma warning disable SA1602 // Enumeration items should be documented
 #pragma warning disable SA1313 // Parameter names should begin with lower-case letter
+#pragma warning disable 0649
 
 namespace VsixTesting.Interop
 {
