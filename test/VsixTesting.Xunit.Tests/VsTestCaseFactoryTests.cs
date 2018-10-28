@@ -3,6 +3,7 @@
 namespace VsixTesting.XunitX.Tests
 {
     using System;
+    using System.Linq;
     using Vs;
     using VsixTesting.XunitX.Internal;
     using Xunit;
@@ -19,6 +20,26 @@ namespace VsixTesting.XunitX.Tests
             };
 
             Assert.Single(VsTestCaseFactory.FilterInstallations(installations, new VsTestSettings()));
+        }
+
+        [Theory]
+        [InlineData("14", "VisualStudio/14.0.0")]
+        [InlineData("14-", "VisualStudio/14.0.0")]
+        [InlineData("15", "VisualStudio/15.0.2")]
+        void FilterInstallations_PreferSpecificInstallation(string version, string expectedName)
+        {
+            var installationPath = "C:\\Program Files (x86)\\Microsoft Visual Studio 15.0";
+            var installations = new[]
+            {
+                new VsInstallation(new Version(14, 0, 0), string.Empty, "VisualStudio/14.0.0"),
+                new VsInstallation(new Version(15, 0, 3), string.Empty, "VisualStudio/15.0.3"),
+                new VsInstallation(new Version(15, 0, 2), installationPath, "VisualStudio/15.0.2"),
+                new VsInstallation(new Version(15, 0, 1), string.Empty, "VisualStudio/15.0.1"),
+            };
+
+            var applicationPath = VisualStudioUtil.GetApplicationPath(installationPath);
+            var installation = VsTestCaseFactory.FilterInstallations(installations, new VsTestSettings { Version = version }, preferedAppPath: applicationPath).First();
+            Assert.Equal(expectedName, installation.Name);
         }
     }
 }
