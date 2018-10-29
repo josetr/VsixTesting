@@ -15,11 +15,14 @@ namespace VsixTesting.Installer
     using System.Runtime.InteropServices;
     using System.Text;
     using Microsoft.VisualStudio.ExtensionManager;
+    using Vs;
+    using VsixTesting.Utilities;
     using static VsixTesting.Installer.RestartManager;
     using FILETIME = System.Runtime.InteropServices.ComTypes.FILETIME;
 
     internal class Program : MarshalByRefObject
     {
+        [STAThread]
         public static int Main(string[] args)
         {
             var applicationPath = CommandLineParser.One(args, "ApplicationPath");
@@ -43,6 +46,21 @@ namespace VsixTesting.Installer
                         {
                             var extensionPaths = CommandLineParser.Many(args, "Install");
                             return Installer.Install(applicationPath, rootSuffix, extensionPaths, allUsers: false);
+                        }
+                    },
+                    {
+                        "InstallAndStart", () =>
+                        {
+                            var extensionPaths = CommandLineParser.Many(args, "InstallAndStart");
+                            var result = Installer.Install(applicationPath, rootSuffix, extensionPaths, allUsers: false);
+                            using (var retryFilter = new RetryMessageFilter())
+                            {
+                                var dte = VisualStudioUtil.GetDteFromDebuggedProcess(Process.GetCurrentProcess());
+                                var process = Process.Start(applicationPath, $"/RootSuffix {rootSuffix}");
+                                if (dte != null)
+                                   VisualStudioUtil.AttachDebugger(dte, process);
+                                return result;
+                            }
                         }
                     },
                     {
@@ -124,15 +142,21 @@ namespace VsixTesting.Installer
         {
             var executablePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, filename);
             File.Copy(Process.GetCurrentProcess().MainModule.FileName, executablePath, true);
-            var process = Process.Start(new ProcessStartInfo
+            using (var retryFilter = new RetryMessageFilter())
             {
-                FileName = executablePath,
-                Arguments = Environment.CommandLine,
-                UseShellExecute = false,
-            });
-            process.WaitForExit();
-            FileUtil.TryDelete(executablePath);
-            return process.ExitCode;
+                var dte = VisualStudioUtil.GetDteFromDebuggedProcess(Process.GetCurrentProcess());
+                var process = Process.Start(new ProcessStartInfo
+                {
+                    FileName = executablePath,
+                    Arguments = Environment.CommandLine,
+                    UseShellExecute = false,
+                });
+                if (dte != null)
+                    VisualStudioUtil.AttachDebugger(dte, process);
+                process.WaitForExit();
+                FileUtil.TryDelete(executablePath);
+                return process.ExitCode;
+            }
         }
 
         internal class AssemblyResolver : MarshalByRefObject

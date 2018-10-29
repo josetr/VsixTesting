@@ -12,6 +12,11 @@
 
   <ItemGroup>
     <Content Include="VsixTesting.Installer.props" PackagePath="build" />
+    <Compile Include="../VsixTesting/Interop/Ole32.cs" />
+    <Compile Include="../VsixTesting/Interop/Kernel32.cs" />
+    <Compile Include="../VsixTesting/Common/RunningObjectTable.cs" />
+    <Compile Include="../VsixTesting/Utilities/RetryMessageFilter.cs" />
+    <Compile Include="../VsixTesting/Vs/VisualStudioUtil.Dte.cs" />
   </ItemGroup>
 
   <ItemGroup>
@@ -24,5 +29,8 @@
       <Private>False</Private>
     </Reference>
     <PackageReference Include="Nerdbank.GitVersioning" Version="2.1.65" PrivateAssets="all" />
+    <PackageReference Include="EnvDTE" Version="8.0.0" PrivateAssets="all" />
+    <PackageReference Include="EnvDTE80" Version="8.0.0" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.VisualStudio.SDK.EmbedInteropTypes" Version="15.0.17" PrivateAssets="all" />
   </ItemGroup>
 </Project>
