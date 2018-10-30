@@ -25,11 +25,34 @@ namespace VsixTesting.Installer
         [STAThread]
         public static int Main(string[] args)
         {
-            var applicationPath = CommandLineParser.One(args, "ApplicationPath");
+            var applicationPath = CommandLineParser.One(args, "ApplicationPath", string.Empty);
             var rootSuffix = CommandLineParser.One(args, "RootSuffix", string.Empty);
+
+            if (string.IsNullOrEmpty(applicationPath))
+            {
+                var version = CommandLineParser.One(args, "Version");
+                var sku = CommandLineParser.One(args, "SKU", string.Empty);
+                var preview = CommandLineParser.Contains(args, "Preview");
+                var installations = VisualStudioUtil.FindInstallations();
+                applicationPath = GetInstallation(installations, version, sku, preview).ApplicationPath;
+            }
+
             var appDomain = CreateAppDomain(applicationPath);
             var program = appDomain.CreateInstanceFromAndUnwrap<Program>();
             return program.Run(applicationPath, rootSuffix, args);
+        }
+
+        internal static VsInstallation GetInstallation(IEnumerable<VsInstallation> installations, string versionRange, string sku, bool preview)
+        {
+            var version = VersionRange.Parse(versionRange).Minimum;
+            var year = VersionUtil.GetYear(version);
+
+            return installations.
+                Where(i => i.Version.Major == version.Major)
+                .OrderByDescending(i => i.ProductId.Split('.').Last().Equals(sku, StringComparison.OrdinalIgnoreCase))
+                .ThenByDescending(i => i.Preview == preview)
+                .FirstOrDefault()
+                ?? throw new Exception($"Please install Visual Studio {year}.");
         }
 
         private int Run(string applicationPath, string rootSuffix, string[] args)

@@ -16,8 +16,10 @@ namespace Vs
         }
 
         public Version Version { get; }
+        public bool Preview => Name.Contains("-pre");
         public string Path { get; }
         public string Name { get; }
+        public string ProductId { get; set; } = string.Empty;
         public string ApplicationPath => VisualStudioUtil.GetApplicationPath(Path);
         public IEnumerable<string> PackageIds { get; set; } = Enumerable.Empty<string>();
     }

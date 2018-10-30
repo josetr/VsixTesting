@@ -18,19 +18,19 @@
     },
     "VsixTesting.Installer.2012.Install": {
       "commandName": "Project",
-      "commandLineArgs": "/ApplicationPath \"C:\\Program Files (x86)\\Microsoft Visual Studio 11.0\\Common7\\IDE\\devenv.exe\" /RootSuffix Exp /Install \"$(SolutionDir)bin\\VsixTesting.Invoker\\$(Configuration)\\net452\\VsixTesting.Invoker.vsix\""
+      "commandLineArgs": "/Version 2012 /RootSuffix Exp /Install \"$(SolutionDir)bin\\VsixTesting.Invoker\\$(Configuration)\\net452\\VsixTesting.Invoker.vsix\""
     },
     "VsixTesting.Installer.2012.InstallAndStart": {
       "commandName": "Project",
-      "commandLineArgs": "/ApplicationPath \"C:\\Program Files (x86)\\Microsoft Visual Studio 11.0\\Common7\\IDE\\devenv.exe\" /RootSuffix Exp /InstallAndStart \"$(SolutionDir)bin\\VsixTesting.Invoker\\$(Configuration)\\net452\\VsixTesting.Invoker.vsix\""
+      "commandLineArgs": "/Version 2012 /RootSuffix Exp /InstallAndStart \"$(SolutionDir)bin\\VsixTesting.Invoker\\$(Configuration)\\net452\\VsixTesting.Invoker.vsix\""
     },
     "VsixTesting.Installer.2012.Uninstall": {
       "commandName": "Project",
-      "commandLineArgs": "/ApplicationPath \"C:\\Program Files (x86)\\Microsoft Visual Studio 11.0\\Common7\\IDE\\devenv.exe\" /RootSuffix Exp /Uninstall 9eef3d53-333f-4be2-900e-a1f104fc325a"
+      "commandLineArgs": "/Version 2012 /RootSuffix Exp /Uninstall 9eef3d53-333f-4be2-900e-a1f104fc325a"
     },
     "VsixTesting.Installer.2012.IsProfileInitialized": {
       "commandName": "Project",
-      "commandLineArgs": "/ApplicationPath \"C:\\Program Files (x86)\\Microsoft Visual Studio 11.0\\Common7\\IDE\\devenv.exe\" /RootSuffix Exp /IsProfileInitialized"
-    }
+      "commandLineArgs": "/Version 2012 /RootSuffix Exp /IsProfileInitialized"
+    },
   }
 }

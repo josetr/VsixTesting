@@ -7,14 +7,12 @@ namespace Vs
     using System.Diagnostics;
     using System.IO;
     using System.Linq;
-    using System.Reflection;
     using System.Runtime.InteropServices;
     using System.Threading.Tasks;
     using Common;
     using EnvDTE80;
     using Microsoft.VisualStudio.Setup.Configuration;
     using Microsoft.Win32;
-    using VsixTesting.Utilities;
     using DTE = EnvDTE.DTE;
 
     internal static partial class VisualStudioUtil
@@ -129,6 +127,7 @@ namespace Vs
                         path: instance.GetInstallationPath())
                     {
                         PackageIds = instance.GetPackages().Select(p => p.GetId()),
+                        ProductId = instance.GetProduct().GetId(),
                     };
                 }
             }
