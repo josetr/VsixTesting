@@ -3,7 +3,7 @@
     <TargetFramework>net452</TargetFramework>
     <OutputType>Exe</OutputType>
     <Prefer32Bit>true</Prefer32Bit>
-    <DocumentationFile>$(OutputPath)$(AssemblyName).xml</DocumentationFile>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageTags>VisualStudio, Extension, Installer, VSIXInstaller</PackageTags>
     <Description>Command Line Utility for installing Visual Studio Extensions.</Description>
@@ -12,11 +12,15 @@
 
   <ItemGroup>
     <Content Include="VsixTesting.Installer.props" PackagePath="build" />
-    <Compile Include="../VsixTesting/Interop/Ole32.cs" />
-    <Compile Include="../VsixTesting/Interop/Kernel32.cs" />
-    <Compile Include="../VsixTesting/Common/RunningObjectTable.cs" />
-    <Compile Include="../VsixTesting/Utilities/RetryMessageFilter.cs" />
-    <Compile Include="../VsixTesting/Vs/VisualStudioUtil.Dte.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="../VsixTesting/Interop/Ole32.cs" Link="VsixTesting/Interop/%(Filename)%(Extension)" />
+    <Compile Include="../VsixTesting/Interop/Kernel32.cs" Link="VsixTesting/Interop/%(Filename)%(Extension)" />
+    <Compile Include="../VsixTesting/Common/*.cs" Link="VsixTesting/Common/%(Filename)%(Extension)" />
+    <Compile Include="../VsixTesting/Utilities/RetryMessageFilter.cs" Link="VsixTesting/Utilities/%(Filename)%(Extension)" />
+    <Compile Include="../VsixTesting/Vs/*.cs" Link="VsixTesting/Vs/%(Filename)%(Extension)" />
+    <Compile Remove="../VsixTesting/Vs/VisualStudioUtil.Installer.cs" />
   </ItemGroup>
 
   <ItemGroup>
@@ -29,8 +33,8 @@
       <Private>False</Private>
     </Reference>
     <PackageReference Include="Nerdbank.GitVersioning" Version="2.1.65" PrivateAssets="all" />
-    <PackageReference Include="EnvDTE" Version="8.0.0" PrivateAssets="all" />
     <PackageReference Include="EnvDTE80" Version="8.0.0" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.VisualStudio.Setup.Configuration.Interop" Version="1.16.30" PrivateAssets="all" />
     <PackageReference Include="Microsoft.VisualStudio.SDK.EmbedInteropTypes" Version="15.0.17" PrivateAssets="all" />
   </ItemGroup>
 </Project>

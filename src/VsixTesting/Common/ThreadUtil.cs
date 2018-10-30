@@ -46,11 +46,11 @@ namespace Common
 
         private sealed class SingleThreadSyncContext : SynchronizationContext, IDisposable
         {
-            private readonly BlockingCollection<(SendOrPostCallback, object)> statefulCallbacks = new BlockingCollection<(SendOrPostCallback, object)>();
+            private readonly BlockingCollection<Tuple<SendOrPostCallback, object>> statefulCallbacks = new BlockingCollection<Tuple<SendOrPostCallback, object>>();
             private bool disposed = false;
 
             public override void Post(SendOrPostCallback d, object state)
-                => statefulCallbacks.Add((d, state));
+                => statefulCallbacks.Add(Tuple.Create(d, state));
 
             public override void Send(SendOrPostCallback d, object state)
                 => throw new NotSupportedException();

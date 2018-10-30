@@ -9,7 +9,7 @@
     <InheritDoc>true</InheritDoc>
     <RunCodeCoverage>true</RunCodeCoverage>
     <GenerateHtmlCoverageReport>true</GenerateHtmlCoverageReport>
-    <DocumentationFile>$(OutputPath)$(AssemblyName).xml</DocumentationFile>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <RootNamespace>VsixTesting.XunitX</RootNamespace>
   </PropertyGroup>
 
