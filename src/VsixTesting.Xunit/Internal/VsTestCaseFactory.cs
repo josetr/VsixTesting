@@ -91,7 +91,7 @@ namespace VsixTesting.XunitX.Internal
             {
                 foreach (var installation in group
                     .OrderBy(i => !i.ApplicationPath.Equals(preferedAppPath, StringComparison.OrdinalIgnoreCase))
-                    .ThenBy(i => i.Name.Contains("-pre")))
+                    .ThenBy(i => i.Preview))
                 {
                     if (!settings.SupportedVersionRanges.Any(range => installation.Version >= range.Minimum && installation.Version <= range.Maximum))
                     {
