@@ -12,6 +12,7 @@ namespace Vs.Tests
         [InlineData(2013, 12)]
         [InlineData(2015, 14)]
         [InlineData(2017, 15)]
+        [InlineData(2019, 16)]
         void GetYearFromMajorVersion(int expectedYear, int majorVersion)
             => Assert.Equal(expectedYear, VersionUtil.GetYear(new Version(majorVersion, 0)));
 
@@ -20,13 +21,14 @@ namespace Vs.Tests
         [InlineData(12, 2013)]
         [InlineData(14, 2015)]
         [InlineData(15, 2017)]
+        [InlineData(16, 2019)]
         void GetMajorVersionFromYear(int expectedMajorVersion, int year)
             => Assert.Equal(VersionUtil.FromYear(year).Major, expectedMajorVersion);
 
         [Theory]
         [InlineData(10)] // Not supported
         [InlineData(13)] // Doesn't exist
-        [InlineData(16)] // Not supported yet
+        [InlineData(17)] // Not supported yet
         void BadMajorVersions(int major)
             => Assert.Throws<ArgumentOutOfRangeException>(() => VersionUtil.GetYear(new Version(major, 0)));
 
@@ -35,7 +37,7 @@ namespace Vs.Tests
         [InlineData(2014)] // Doesn't exist
         [InlineData(2016)] // Doesn't exist
         [InlineData(2018)] // Doesn't exist
-        [InlineData(2019)] // Not supported yet
+        [InlineData(2020)] // Not supported yet
         void BadYears(int year)
             => Assert.Throws<ArgumentOutOfRangeException>(() => VersionUtil.FromYear(year));
     }
