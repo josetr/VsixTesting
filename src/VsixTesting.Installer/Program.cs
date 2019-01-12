@@ -384,8 +384,28 @@ namespace VsixTesting.Installer
         {
             var majorVersion = typeof(IVsExtensionManager).Assembly.GetName().Version.Major;
 
-            var assembly = Assembly.Load($"Microsoft.VisualStudio.Settings{(majorVersion == 10 ? string.Empty : $".{majorVersion}.0")}, " +
-                $"Version={majorVersion}.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a");
+            string suffix;
+            int assemblyVersion;
+            switch (majorVersion)
+            {
+                case 10:
+                    suffix = string.Empty;
+                    assemblyVersion = 10;
+                    break;
+
+                case 16:
+                    suffix = ".15.0";
+                    assemblyVersion = 15;
+                    break;
+
+                default:
+                    suffix = $".{majorVersion}.0";
+                    assemblyVersion = majorVersion;
+                    break;
+            }
+
+            var assembly = Assembly.Load($"Microsoft.VisualStudio.Settings{suffix}, " +
+                $"Version={assemblyVersion}.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a");
 
             return assembly.GetType("Microsoft.VisualStudio.Settings.ExternalSettingsManager");
         }

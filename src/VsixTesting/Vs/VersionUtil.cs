@@ -14,6 +14,7 @@ namespace Vs
                 case 12: return 2013;
                 case 14: return 2015;
                 case 15: return 2017;
+                case 16: return 2019;
             }
 
             throw new ArgumentOutOfRangeException(nameof(version));
@@ -27,6 +28,7 @@ namespace Vs
                 case 2013: return new Version(12, 0);
                 case 2015: return new Version(14, 0);
                 case 2017: return new Version(15, 0);
+                case 2019: return new Version(16, 0);
                 default: throw new ArgumentOutOfRangeException(nameof(year), $"VS{year} is not supported.");
             }
         }
