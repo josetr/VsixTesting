@@ -5,23 +5,44 @@
 [![codecov](https://codecov.io/gh/josetr/VsixTesting/branch/master/graph/badge.svg)](https://codecov.io/gh/josetr/VsixTesting)
 [![MyGet](https://img.shields.io/myget/vsixtesting/v/VsixTesting.Xunit.svg)](https://www.myget.org/feed/vsixtesting/package/nuget/VsixTesting.Xunit)
 
-VsixTesting allows you to easily test your Visual Studio Extensions.
+VsixTesting allows you to easily test your Visual Studio Extensions. 
 
 ![Image](https://raw.githubusercontent.com/josetr/VsixTesting/master/VsixTesting.png)
 
-## Xunit
+## Getting Started
 
-.csproj
+The fastest way to get started is cloning the [VsixTestingSamples](https://github.com/josetr/VsixTestingSamples) repo and playing with it. 
+
+`git clone https://github.com/josetr/VsixTestingSamples`
+
+## Create the test project
+
+TestProject.csproj
 ```xml
-<ItemGroup>
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net461</TargetFramework>
+    <PlatformTarget>x86</PlatformTarget>
+  </PropertyGroup>
+
+  <ItemGroup>
     <PackageReference Include="xunit" Version="2.3.1" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.3.1" />
-    <PackageReference Include="VsixTesting.Xunit" Version="0.1.*-beta" />
-    <PackageReference Include="VSSDK.Shell.11" Version="11.0.4" />
-</ItemGroup>
+    <PackageReference Include="VsixTesting.Xunit" Version="0.1.36-beta" /> 
+    <!-- Optional package containing types used in this sample. -->    
+    <PackageReference Include="VSSDK.Shell.11" Version="11.0.4" /> 
+    <!-- 
+      <ProjectReference Include="..\MyVsixProject\MyVsixProject.csproj" />      
+      * VsixTesting contains an MSBuild target that scans all project references
+         and if they generate a .vsix package, it will copy them 
+         to the output folder where the test assembly is located.
+      * VsixTesting will install all .vsix packages located next to the test assembly.
+    -->        
+  </ItemGroup>
+</Project>
 ```
 
-.cs
+TestClass.cs
 ```csharp
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
@@ -47,11 +68,14 @@ namespace Tests
 
 ```
 
-### Test Settings 
+### Configuring how tests run
 
-[ITestSettings.cs](src/VsixTesting/ITestSettings.cs) implemented by
- * [VsTestSettingsAttribute.cs](src/VsixTesting.Xunit/VsTestSettingsAttribute.cs) (for classes/collections/assemblies)
- * [VsFactAttribute.cs](src/VsixTesting.Xunit/VsFactAttribute.cs) (for methods)
+All the settings are located in [ITestSettings](src/VsixTesting/ITestSettings.cs) and are implemented by 3 attributes:
+
+* `[VsTestSettings]` for classes/collections/assemblies
+* `[VsFact]` and `[VsTheory]` for methods
+
+Intellisense should be used to read the documentation for each property that can be set.
 
 ## License
 
