@@ -28,7 +28,7 @@ TestProject.csproj
   <ItemGroup>
     <PackageReference Include="xunit" Version="2.3.1" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.3.1" />
-    <PackageReference Include="VsixTesting.Xunit" Version="0.1.36-beta" /> 
+    <PackageReference Include="VsixTesting.Xunit" Version="0.1.49-beta" /> 
     <!-- Optional package containing types used in this sample. -->    
     <PackageReference Include="VSSDK.Shell.11" Version="11.0.4" /> 
     <!-- 
