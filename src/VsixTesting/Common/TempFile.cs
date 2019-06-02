@@ -27,7 +27,7 @@ namespace Common
 
         private bool TryDeleteFile()
         {
-            if (Path == null)
+            if (Path != null)
             {
                 try
                 {
