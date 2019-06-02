@@ -8,7 +8,7 @@ namespace VsixTesting.Invoker
 
     [PackageRegistration(UseManagedResourcesOnly = true)]
     [ProvideAutomationObject(AutomationObjectName)]
-#if DEBUG
+#if false
     [ProvideAutoLoad(VSConstants.UICONTEXT.SolutionExists_string)]
     [ProvideAutoLoad(VSConstants.UICONTEXT.NoSolution_string)]
 #endif
@@ -24,7 +24,7 @@ namespace VsixTesting.Invoker
             return base.GetAutomationObject(name);
         }
 
-#if DEBUG
+#if false
         protected override void Initialize()
             => base.Initialize();
 #endif
