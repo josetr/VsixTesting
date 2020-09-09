@@ -329,7 +329,7 @@ namespace VsixTesting.Installer
         }
 
         public void UpdateLastExtensionsChange()
-            => Obj.UpdateLastExtensionsChange();
+            => Obj.UpdateLastExtensionsChange(true);
 
         public void Close()
             => Obj.Close();
