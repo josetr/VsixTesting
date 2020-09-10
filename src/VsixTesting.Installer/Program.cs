@@ -14,7 +14,6 @@ namespace VsixTesting.Installer
     using System.Reflection;
     using System.Runtime.InteropServices;
     using System.Text;
-    using Microsoft.CSharp.RuntimeBinder;
     using Microsoft.VisualStudio.ExtensionManager;
     using Vs;
     using VsixTesting.Utilities;
@@ -23,21 +22,25 @@ namespace VsixTesting.Installer
 
     internal class Program : MarshalByRefObject
     {
+        internal static Version VsProductVersion { get; private set; }
+
         [STAThread]
         public static int Main(string[] args)
         {
             var applicationPath = CommandLineParser.One(args, "ApplicationPath");
             var rootSuffix = CommandLineParser.One(args, "RootSuffix", string.Empty);
+            VsProductVersion = Version.Parse(FileVersionInfo.GetVersionInfo(applicationPath).ProductVersion);
             var appDomain = CreateAppDomain(applicationPath);
             var program = appDomain.CreateInstanceFromAndUnwrap<Program>();
-            return program.Run(applicationPath, rootSuffix, args);
+            return program.Run(applicationPath, rootSuffix, VsProductVersion, args);
         }
 
-        private int Run(string applicationPath, string rootSuffix, string[] args)
+        private int Run(string applicationPath, string rootSuffix, Version vsProductVersion, string[] args)
         {
+            VsProductVersion = vsProductVersion;
             try
             {
-                if (!ExtensionManagerUtil.IsValidProcessFileName(applicationPath, out var expectedFileName))
+                if (!ExtensionManagerUtil.IsValidProcessFileName(out var expectedFileName))
                     return StartProcess(expectedFileName);
 
                 var commands = new Dictionary<string, Func<int>>
@@ -101,7 +104,6 @@ namespace VsixTesting.Installer
 
         private static AppDomain CreateAppDomain(string applicationPath)
         {
-            var version = Version.Parse(FileVersionInfo.GetVersionInfo(applicationPath).ProductVersion);
             var appDomainSetup = new AppDomainSetup { ApplicationBase = Path.GetDirectoryName(typeof(Program).Assembly.Location) };
             appDomainSetup.SetConfigurationBytes(Encoding.UTF8.GetBytes($@"<?xml version=""1.0"" encoding=""utf-8""?>
 <configuration>
@@ -109,12 +111,12 @@ namespace VsixTesting.Installer
     <assemblyBinding xmlns=""urn:schemas-microsoft-com:asm.v1"">
         <dependentAssembly>
             <assemblyIdentity name=""Microsoft.VisualStudio.ExtensionManager"" publicKeyToken=""b03f5f7f11d50a3a"" culture=""neutral"" />
-            <bindingRedirect oldVersion=""10.0.0.0-{version.Major}.0.0.0"" newVersion=""{version.Major}.0.0.0"" />
+            <bindingRedirect oldVersion=""10.0.0.0-{VsProductVersion.Major}.0.0.0"" newVersion=""{VsProductVersion.Major}.0.0.0"" />
         </dependentAssembly>
     </assemblyBinding>
     </runtime>
 </configuration>"));
-            var appDomain = AppDomain.CreateDomain($"{nameof(Installer)} {version}", null, appDomainSetup);
+            var appDomain = AppDomain.CreateDomain($"{nameof(Installer)} {VsProductVersion}", null, appDomainSetup);
             var assemblyResolver = appDomain.CreateInstanceFromAndUnwrap<AssemblyResolver>();
             assemblyResolver.Install(Path.GetDirectoryName(applicationPath));
             return appDomain;
@@ -331,14 +333,10 @@ namespace VsixTesting.Installer
 
         public void UpdateLastExtensionsChange()
         {
-            try
-            {
-                Obj.UpdateLastExtensionsChange();
-            }
-            catch (RuntimeBinderException)
-            {
+            if (Program.VsProductVersion >= new Version(16, 7))
                 Obj.UpdateLastExtensionsChange(true);
-            }
+            else
+                Obj.UpdateLastExtensionsChange();
         }
 
         public void Close()
@@ -449,15 +447,13 @@ namespace VsixTesting.Installer
             }
         }
 
-        internal static bool IsValidProcessFileName(string applicationPath, out string expectedFileName)
+        internal static bool IsValidProcessFileName(out string expectedFileName)
         {
-            var productVersion = Version.Parse(FileVersionInfo.GetVersionInfo(applicationPath).ProductVersion);
-
-            if (productVersion.Major == 15 && productVersion.Minor == 8)
+            if (Program.VsProductVersion.Major == 15 && Program.VsProductVersion.Minor == 8)
             {
                 try
                 {
-                    ExtensionManagerService.VsProductVersion = productVersion.ToString();
+                    ExtensionManagerService.VsProductVersion = Program.VsProductVersion.ToString();
                     var value = ExtensionManagerService.VsProductVersion;
                 }
                 catch
