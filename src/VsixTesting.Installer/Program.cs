@@ -14,6 +14,7 @@ namespace VsixTesting.Installer
     using System.Reflection;
     using System.Runtime.InteropServices;
     using System.Text;
+    using Microsoft.CSharp.RuntimeBinder;
     using Microsoft.VisualStudio.ExtensionManager;
     using Vs;
     using VsixTesting.Utilities;
@@ -329,7 +330,16 @@ namespace VsixTesting.Installer
         }
 
         public void UpdateLastExtensionsChange()
-            => Obj.UpdateLastExtensionsChange(true);
+        {
+            try
+            {
+                Obj.UpdateLastExtensionsChange();
+            }
+            catch (RuntimeBinderException)
+            {
+                Obj.UpdateLastExtensionsChange(true);
+            }
+        }
 
         public void Close()
             => Obj.Close();
