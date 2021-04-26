@@ -5,12 +5,12 @@
     <OpenCoverVersion>4.6.519</OpenCoverVersion>
     <CodeCovVersion>1.0.5</CodeCovVersion>
     <ReportGeneratorVersion>3.1.2</ReportGeneratorVersion>
-    <Pdb2PdbVersion>1.1.0-beta1-63019-01</Pdb2PdbVersion>
+    <Pdb2PdbVersion>1.1.0-beta2-21168-01</Pdb2PdbVersion>    
     <InheritDocVersion>1.2.0.1</InheritDocVersion>
     <OpenCoverPath>$(GlobalPackagesPath)opencover\$(OpenCoverVersion)\tools\opencover.console.exe</OpenCoverPath>
     <CodeCovPath>$(GlobalPackagesPath)codecov\$(CodeCovVersion)\tools\codecov.exe</CodeCovPath>
     <ReportGeneratorPath>$(GlobalPackagesPath)reportgenerator\$(ReportGeneratorVersion)\tools\ReportGenerator.exe</ReportGeneratorPath>
-    <Pdb2PdbPath>$(GlobalPackagesPath)pdb2pdb\$(Pdb2PdbVersion)\tools\Pdb2Pdb.exe</Pdb2PdbPath>
+    <Pdb2PdbPath>$(GlobalPackagesPath)Microsoft.DiaSymReader.Pdb2Pdb\$(Pdb2PdbVersion)\tools\Pdb2Pdb.exe</Pdb2PdbPath>
     <InheritDocPath>$(GlobalPackagesPath)InheritDoc\$(InheritDocVersion)\tools\InheritDoc.exe</InheritDocPath>
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
   </PropertyGroup>
@@ -20,7 +20,7 @@
     <PackageReference Include="OpenCover" Version="$(OpenCoverVersion)" PrivateAssets="all" />
     <PackageReference Include="Codecov" Version="$(CodeCovVersion)" PrivateAssets="all" />
     <PackageReference Include="ReportGenerator" Version="$(ReportGeneratorVersion)" PrivateAssets="all" />
-    <PackageReference Include="Pdb2Pdb" Version="$(Pdb2PdbVersion)" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.DiaSymReader.Pdb2Pdb" Version="$(Pdb2PdbVersion)" PrivateAssets="all" />
   </ItemGroup>
 
   <ItemGroup Condition="$(IsTestProject) == true">
