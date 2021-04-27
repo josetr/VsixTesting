@@ -7,12 +7,14 @@ namespace VsixTesting.XunitX.Internal
     using System.Diagnostics;
     using System.IO;
     using System.Reflection;
+    using System.Runtime.CompilerServices;
     using System.Threading;
-    using System.Windows;
+    using System.Threading.Tasks;
     using VsixTesting.Utilities;
     using VsixTesting.XunitX.Internal.Utilities;
     using Xunit.Abstractions;
     using Xunit.Sdk;
+    using Common;
 
     internal class VsTestInvoker : XunitTestInvoker
     {
@@ -50,6 +52,18 @@ namespace VsixTesting.XunitX.Internal
             }
         }
 
+        protected override Task<decimal> InvokeTestMethodAsync(object testClassInstance)
+        {
+            if (Settings.UIThread && !TestMethod.IsAsync())
+            {
+                ValidateTestMethodParameters();
+                Timer.Aggregate(() => CallTestMethod(testClassInstance));
+                return Task.FromResult(Timer.Total);
+            }
+
+            return base.InvokeTestMethodAsync(testClassInstance);
+        }
+
         private void TakeScreenShot(string name)
         {
             try
@@ -64,6 +78,18 @@ namespace VsixTesting.XunitX.Internal
             catch (Exception e)
             {
                 Aggregator.Add(new Exception("Failed saving screenshot", e));
+            }
+        }
+
+        // https://github.com/xunit/xunit/src/xunit.execution/Sdk/Frameworks/Runners/TestInvoker.cs#L251
+        private void ValidateTestMethodParameters()
+        {
+            int parameterCount = TestMethod.GetParameters().Length;
+            int valueCount = (TestMethodArguments != null) ? TestMethodArguments.Length : 0;
+            if (parameterCount != valueCount)
+            {
+                Aggregator.Add(new InvalidOperationException(string.Format(
+                    "The test method expected {0} parameter value{1}, but {2} parameter value{3} {4} provided.", parameterCount, (parameterCount == 1) ? string.Empty : "s", valueCount, (valueCount == 1) ? string.Empty : "s", (valueCount == 1) ? "was" : "were")));
             }
         }
     }

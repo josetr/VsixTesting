@@ -94,8 +94,9 @@ namespace VsixTesting.XunitX.Tests
 
             [VsTheory]
             [InlineData(0)]
-            void MethodHasSameSyncContextTypeAsConstructor(int zero)
+            async void MethodHasSameSyncContextTypeAsConstructor(int zero)
             {
+                await Task.Delay(0);
                 var asyncTestSyncContext = (AsyncTestSyncContext)SynchronizationContext.Current;
                 Assert.IsType(synchronizationContext.GetType(), asyncTestSyncContext.GetInnerSyncContext());
             }
