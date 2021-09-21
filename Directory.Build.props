@@ -17,7 +17,7 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <PackageLicenseUrl>https://github.com/josetr/VsixTesting/blob/master/LICENSE.md</PackageLicenseUrl>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/josetr/VsixTesting</PackageProjectUrl>
     <RepositoryUrl>https://github.com/josetr/VsixTesting</RepositoryUrl>
     <PackageTags>VisualStudio, Extension, Testing, Xunit, VSIX</PackageTags>
