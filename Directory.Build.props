@@ -27,11 +27,11 @@
     <Description>VsixTesting allows you to easily test your Visual Studio Extensions.</Description>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(AppVeyor)' != ''">
+  <PropertyGroup Condition="'$(CI)' != ''">
     <DefineConstants>$(DefineConstants);CI</DefineConstants>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(AppVeyor)' != ''">
+  <PropertyGroup Condition="'$(CI)' != ''">
     <RestoreAdditionalProjectSources Condition="Exists('$(SolutionDir)bin\VsixTesting.Xunit\$(Configuration)')">
       $(SolutionDir)bin\VsixTesting.Xunit\$(Configuration)
     </RestoreAdditionalProjectSources>

@@ -1,0 +1,52 @@
+name: CI
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name != github.repository
+
+    strategy:
+      matrix:
+        os: ["windows-2016", "windows-2019"]
+
+    runs-on: ${{ matrix.os }}
+    env:
+      CONFIGURATION: Release
+
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: '0'
+
+      - name: Add msbuild to PATH
+        uses: microsoft/setup-msbuild@v1.0.2
+
+      - name: Install
+        run: |
+          dotnet tool install -g nbgv
+          nbgv cloud --all-vars
+          msbuild src/VsixTesting.Xunit /v:m /nologo /t:restore
+          msbuild src/VsixTesting.Xunit /v:m /nologo
+          msbuild /v:m /nologo /t:restore
+
+      - name: Build
+        run: msbuild /v:m /nologo
+
+      - name: Test
+        run: msbuild /t:test
+
+      - name: Upload nuget packages
+        if: matrix.os == 'windows-2019'
+        uses: actions/upload-artifact@v2
+        with:
+          name: VsixTesting
+          path: |
+            artifacts/*.nupkg
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v2
+        with:
+          name: VsixTesting.TestResults.${{matrix.os}}
+          path: |
+            artifacts/*.TestResults.xml

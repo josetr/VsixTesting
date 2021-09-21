@@ -64,7 +64,7 @@ $(XunitConsolePathX86) ^
 "$(CodeCovPath)" ^
   -f $(CoverageOutputXmlPath)' />
 
-    <Exec Condition="$(GenerateHtmlCoverageReport) == true AND '$(AppVeyor)' == ''"
+    <Exec Condition="$(GenerateHtmlCoverageReport) == true AND '$(CI)' == ''"
           Command='
 "$(ReportGeneratorPath)" ^
   -targetdir:"$(CoverageOutputHtmlDir)" ^
