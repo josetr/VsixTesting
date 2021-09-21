@@ -24,6 +24,7 @@ jobs:
 
       - name: Install
         run: |
+          mkdir artifacts
           dotnet tool install -g nbgv
           nbgv cloud --all-vars
           msbuild src/VsixTesting.Xunit /v:m /nologo /t:restore
