@@ -34,10 +34,11 @@
       <TestAssemblies Include="$(SolutionDir)bin\**\$(Configuration)\$(TargetFramework)\$(AssemblyName).Tests.dll" />
     </ItemGroup>
     <PropertyGroup>
-      <CoverageOutputDirectory>$(SolutionDir)bin\$(AssemblyName)\</CoverageOutputDirectory>
-      <TestResultsOutputXmlPath>$(CoverageOutputDirectory)$(AssemblyName).TestResults.xml</TestResultsOutputXmlPath>
-      <CoverageOutputXmlPath>$(CoverageOutputDirectory)Coverage.xml</CoverageOutputXmlPath>
-      <CoverageOutputHtmlDir>$(CoverageOutputDirectory)Coverage</CoverageOutputHtmlDir>
+      <CoverageOutputDirectory Condition="'$(CoverageOutputDirectory)' == ''">$(SolutionDir)artifacts\</CoverageOutputDirectory>
+      <TestResultsOutputDirectory Condition="'$(TestResultsOutputDirectory)' == ''">$(SolutionDir)artifacts\</TestResultsOutputDirectory>
+      <TestResultsOutputXmlPath>$(TestResultsOutputDirectory)$(AssemblyName).TestResults.xml</TestResultsOutputXmlPath>
+      <CoverageOutputXmlPath>$(CoverageOutputDirectory)$(AssemblyName).Coverage.xml</CoverageOutputXmlPath>
+      <CoverageOutputHtmlDir>$(CoverageOutputDirectory)$(AssemblyName).Coverage</CoverageOutputHtmlDir>
       <XunitTargetArgs>@(TestAssemblies->'%(FullPath)', ' ') -stoponfail -noshadow -appveyor -diagnostics -xml $(TestResultsOutputXmlPath) -notrait VisualStudio=2012FilterTest</XunitTargetArgs>
     </PropertyGroup>
 

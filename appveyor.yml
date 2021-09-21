@@ -22,8 +22,8 @@ deploy:
   artifact: /.*\.nupkg/
 
 artifacts:
-- path: '**\TestResults.xml'
-- path: '**\*.nupkg'
+- path: 'artifacts/*.TestResults.xml'
+- path: 'artifacts/*.nupkg'
 
 test_script:
 - msbuild /t:test

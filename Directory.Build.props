@@ -9,6 +9,7 @@
     <OutputPath>$(SolutionDir)bin\$(MSBuildProjectName)\$(Configuration)\</OutputPath>
     <AssemblyOriginatorKeyFile>$(SolutionDir)key.snk</AssemblyOriginatorKeyFile>
     <GlobalPackagesPath>$(USERPROFILE)\.nuget\packages\</GlobalPackagesPath>
+    <PackageOutputPath>$(SolutionDir)artifacts</PackageOutputPath>
     <LangVersion>latest</LangVersion>
     <RunCodeCoverage>false</RunCodeCoverage>
     <IsTestProject>false</IsTestProject>
