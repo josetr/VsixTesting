@@ -64,6 +64,8 @@ namespace VsixTesting
                     }
                 }
 
+                output.WriteLine($"IsProfileInitialized: {isProfileInitialized}, resetSettings: {resetSettings}");
+
                 if (!isProfileInitialized || resetSettings)
                 {
                     output.WriteLine("Resetting settings");
