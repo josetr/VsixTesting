@@ -1,41 +1,18 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project>
+  <Import Project="VsixTesting.Installer.Common.csproj" />
+
   <PropertyGroup>
-    <TargetFramework>net452</TargetFramework>
-    <OutputType>Exe</OutputType>
-    <Prefer32Bit>true</Prefer32Bit>
-    <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <PackageTags>VisualStudio, Extension, Installer, VSIXInstaller</PackageTags>
-    <Description>Command Line Utility for installing Visual Studio Extensions.</Description>
-    <IsMainProject>true</IsMainProject>
     <IsTool>true</IsTool>
+    <Prefer32Bit>true</Prefer32Bit>
+    <IsMainProject>true</IsMainProject>
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\VsixTesting.Installer\VsixTesting.Installer.x64.csproj" PrivateAssets="all" ReferenceOutputAssembly="false" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Content Include="VsixTesting.Installer.props" PackagePath="build" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Compile Include="../VsixTesting/Interop/Ole32.cs" Link="VsixTesting/Interop/%(Filename)%(Extension)" />
-    <Compile Include="../VsixTesting/Interop/Kernel32.cs" Link="VsixTesting/Interop/%(Filename)%(Extension)" />
-    <Compile Include="../VsixTesting/Common/*.cs" Link="VsixTesting/Common/%(Filename)%(Extension)" />
-    <Compile Include="../VsixTesting/Utilities/RetryMessageFilter.cs" Link="VsixTesting/Utilities/%(Filename)%(Extension)" />
-    <Compile Include="../VsixTesting/Vs/*.cs" Link="VsixTesting/Vs/%(Filename)%(Extension)" />
-    <Compile Remove="../VsixTesting/Vs/VisualStudioUtil.Installer.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Reference Include="System.IO.Compression" />
-    <Reference Include="System.Configuration" />
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="Microsoft.VisualStudio.ExtensionManager, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-      <HintPath>References/Microsoft.VisualStudio.ExtensionManager.dll</HintPath>
-      <SpecificVersion>false</SpecificVersion>
-      <Private>False</Private>
-    </Reference>
-    <PackageReference Include="Nerdbank.GitVersioning" Version="2.1.65" PrivateAssets="all" />
-    <PackageReference Include="EnvDTE80" Version="8.0.0" PrivateAssets="all" />
-    <PackageReference Include="Microsoft.VisualStudio.Setup.Configuration.Interop" Version="1.16.30" PrivateAssets="all" />
-    <PackageReference Include="Microsoft.VisualStudio.SDK.EmbedInteropTypes" Version="15.0.17" PrivateAssets="all" />
+    <Content Include="..\..\bin\VsixTesting.Installer.x64\$(Configuration)\net452\VsixTesting.Installer.x64.exe" PackagePath="tools" />
   </ItemGroup>
 </Project>

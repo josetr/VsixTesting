@@ -1,0 +1,7 @@
+﻿<Project>
+  <Import Project="VsixTesting.Installer.Common.csproj"/>
+  
+  <PropertyGroup>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+</Project>

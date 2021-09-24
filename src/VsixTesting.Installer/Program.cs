@@ -40,6 +40,9 @@ namespace VsixTesting.Installer
             VsProductVersion = vsProductVersion;
             try
             {
+                if (VsProductVersion.Major >= 17 && !Environment.Is64BitProcess)
+                    throw new Exception("VsixTesting.Installer.x64.exe must be used for Visual Studio 2022 and higher.");
+
                 if (!ExtensionManagerUtil.IsValidProcessFileName(out var expectedFileName))
                     return StartProcess(expectedFileName);
 
@@ -402,6 +405,7 @@ namespace VsixTesting.Installer
                     break;
 
                 case 16:
+                case 17:
                     suffix = ".15.0";
                     assemblyVersion = 15;
                     break;
