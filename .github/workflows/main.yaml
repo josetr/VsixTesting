@@ -49,7 +49,7 @@ jobs:
         run: msbuild /t:test
 
       - name: Upload nuget packages
-        if: matrix.os == 'windows-2019'
+        if: matrix.os == 'windows-2022'
         uses: actions/upload-artifact@v2
         with:
           name: VsixTesting
