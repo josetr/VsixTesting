@@ -1,5 +1,5 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-  <Import Condition="'$(AppVeyor)' == ''" Project="..\..\src\VsixTesting.Xunit\VsixTesting.Xunit.props" />
+  <Import Condition="'$(CI)' == ''" Project="..\..\src\VsixTesting.Xunit\VsixTesting.Xunit.props" />
 
   <PropertyGroup>
     <TargetFramework>net452</TargetFramework>
@@ -7,7 +7,7 @@
     <RootNamespace>VsixTesting.XunitX.Tests</RootNamespace>
   </PropertyGroup>
 
-  <ItemGroup Condition="'$(AppVeyor)' == ''">
+  <ItemGroup Condition="'$(CI)' == ''">
     <ProjectReference Include="..\..\src\VsixTesting\VsixTesting.csproj" />
     <ProjectReference Include="..\..\src\VsixTesting.Xunit\VsixTesting.Xunit.csproj" />
   </ItemGroup>
@@ -18,7 +18,7 @@
     <PackageReference Include="VSSDK.Shell.11" Version="11.0.4" />
   </ItemGroup>
 
-  <ItemGroup Condition="'$(AppVeyor)' != ''">
+  <ItemGroup Condition="'$(CI)' != ''">
     <PackageReference Include="VsixTesting.Xunit" Version="$(NBGV_NuGetPackageVersion)" />
   </ItemGroup>
 
@@ -29,5 +29,5 @@
     <ProjectReference Include="..\\\\..\src\VsixTesting.Invoker\VsixTesting.Invoker.csproj" ReferenceOutputAssembly="false" CopyVsix="false" ExtensionsDirectory="CopyVsix/False" />
   </ItemGroup>
 
-  <Import Condition="'$(AppVeyor)' == ''" Project="..\..\src\VsixTesting.Xunit\VsixTesting.Xunit.targets" />
+  <Import Condition="'$(CI)' == ''" Project="..\..\src\VsixTesting.Xunit\VsixTesting.Xunit.targets" />
 </Project>
