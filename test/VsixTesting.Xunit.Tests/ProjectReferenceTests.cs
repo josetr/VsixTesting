@@ -12,7 +12,7 @@ namespace VsixTesting.XunitX.Tests
         const bool CopyVsixDefaultValue = true;
 
         [Theory]
-        [InlineData(null)]
+        [InlineData(null, "CopyVsix/Default")]
         [InlineData(true, "CopyVsix", "True.Relative")]
         [InlineData(true, "CopyVsix", "True.Absolute")]
         [InlineData(false, "CopyVsix", "False")]

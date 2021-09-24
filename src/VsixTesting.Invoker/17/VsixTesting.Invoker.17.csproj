@@ -1,0 +1,12 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project>
+  <PropertyGroup>
+    <VS2022>true</VS2022>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="..\**\*.cs" />
+  </ItemGroup>
+
+  <Import Project="..\VsixTesting.Invoker.csproj" />
+</Project>

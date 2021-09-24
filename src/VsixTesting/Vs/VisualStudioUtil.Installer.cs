@@ -27,7 +27,9 @@ namespace Vs
 
         public static async Task<(int Result, string Output)> RunInstallerAsync(VsHive hive, IEnumerable<string> args)
         {
-            using (var visualStudioInstaller = new TempFile(EmbeddedResourceUtil.ExtractResource(Assembly.GetExecutingAssembly(), "VsixTesting.Installer.exe")))
+            var suffix = hive.Version >= VersionUtil.FromVsVersion(VsVersion.VS2022) ? ".x64" : string.Empty;
+
+            using (var visualStudioInstaller = new TempFile(EmbeddedResourceUtil.ExtractResource(Assembly.GetExecutingAssembly(), $"VsixTesting.Installer{suffix}.exe")))
             {
                 var process = Process.Start(new ProcessStartInfo
                 {

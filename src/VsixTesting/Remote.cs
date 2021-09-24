@@ -22,6 +22,15 @@ namespace VsixTesting
             {
                 var assemblyName = new AssemblyName(eventArgs.Name);
 
+                if (Environment.Is64BitProcess)
+                {
+                    if (assemblyName.Name == "Microsoft.VisualStudio.Shell.11.0")
+                    {
+                        if (File.Exists("VsixTesting.Xunit.Tests.dll"))
+                            return Assembly.Load("Microsoft.VisualStudio.Shell.15.0");
+                    }
+                }
+
                 var assemblyFile = Path.Combine(directory, $"{assemblyName.Name}.dll");
                 if (File.Exists(assemblyFile))
                 {

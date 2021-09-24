@@ -130,8 +130,7 @@ namespace VsixTesting.XunitX.Tests
             {
                 // Check AsyncServiceProvider.GlobalProvider from Microsoft.VisualStudio.Shell.14.0
                 // has been initialized when running in Visual Studio 2017+
-                var shellVersion = 14;
-                var type = Type.GetType($"Microsoft.VisualStudio.Shell.AsyncServiceProvider, Microsoft.VisualStudio.Shell.{shellVersion}.0, Version={shellVersion}.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a", false);
+                var type = GetShellType($"Microsoft.VisualStudio.Shell.AsyncServiceProvider", shellVersion: 14);
                 var prop = type?.GetProperty("GlobalProvider", new Type[0]);
                 dynamic asyncServiceProvider = prop.GetValue(null);
                 var componentModel = await asyncServiceProvider.GetServiceAsync(typeof(SComponentModel));
@@ -143,11 +142,16 @@ namespace VsixTesting.XunitX.Tests
             {
                 // Check ServiceProvider.GlobalProvider from Microsoft.VisualStudio.Shell.14.0
                 // has been initialized when running in Visual Studio 2017+
-                var shellVersion = 14;
-                var type = Type.GetType($"Microsoft.VisualStudio.Shell.VsTaskLibraryHelper, Microsoft.VisualStudio.Shell.{shellVersion}.0, Version={shellVersion}.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a", false);
+                var type = GetShellType("Microsoft.VisualStudio.Shell.VsTaskLibraryHelper", shellVersion: 14);
                 var prop = type?.GetProperty("ServiceInstance", new Type[0]);
                 var serviceInstance = prop?.GetValue(null);
                 Assert.NotNull(serviceInstance);
+            }
+
+            private static Type GetShellType(string typeName, int shellVersion = 14)
+            {
+                var type = Type.GetType($"{typeName}, Microsoft.VisualStudio.Shell.{shellVersion}.0, Version={shellVersion}.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a", false);
+                return type != null ? type : (shellVersion == 14 ? GetShellType(typeName, 15) : null);
             }
         }
 

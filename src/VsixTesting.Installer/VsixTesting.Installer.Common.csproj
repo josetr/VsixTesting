@@ -1,0 +1,33 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net452</TargetFramework>
+    <OutputType>Exe</OutputType>    
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <PackageTags>VisualStudio, Extension, Installer, VSIXInstaller</PackageTags>
+    <Description>Command Line Utility for installing Visual Studio Extensions.</Description>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="../VsixTesting/Interop/Ole32.cs" Link="VsixTesting/Interop/%(Filename)%(Extension)" />
+    <Compile Include="../VsixTesting/Interop/Kernel32.cs" Link="VsixTesting/Interop/%(Filename)%(Extension)" />
+    <Compile Include="../VsixTesting/Common/*.cs" Link="VsixTesting/Common/%(Filename)%(Extension)" />
+    <Compile Include="../VsixTesting/Utilities/RetryMessageFilter.cs" Link="VsixTesting/Utilities/%(Filename)%(Extension)" />
+    <Compile Include="../VsixTesting/Vs/*.cs" Link="VsixTesting/Vs/%(Filename)%(Extension)" />
+    <Compile Remove="../VsixTesting/Vs/VisualStudioUtil.Installer.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="Microsoft.VisualStudio.ExtensionManager, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>References/Microsoft.VisualStudio.ExtensionManager.dll</HintPath>
+      <SpecificVersion>false</SpecificVersion>
+      <Private>False</Private>
+    </Reference>
+    <PackageReference Include="Nerdbank.GitVersioning" Version="2.1.65" PrivateAssets="all" />
+    <PackageReference Include="EnvDTE80" Version="8.0.0" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.VisualStudio.Setup.Configuration.Interop" Version="1.16.30" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.VisualStudio.SDK.EmbedInteropTypes" Version="15.0.17" PrivateAssets="all" />
+  </ItemGroup>
+</Project>

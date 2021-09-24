@@ -42,10 +42,11 @@ namespace VsixTesting
             {
                 var invokerAssembly = Assembly.GetExecutingAssembly();
                 var isProfileInitialized = false;
+                var resourceName = $"VsixTesting.Invoker{(hive.Version.Major >= 17 ? ".17" : string.Empty)}.vsix";
 
-                using (var invoker = new TempFile(EmbeddedResourceUtil.ExtractResource(invokerAssembly, "VsixTesting.Invoker.vsix")))
+                using (var invoker = new TempFile(EmbeddedResourceUtil.ExtractResource(invokerAssembly, resourceName)))
                 {
-                    EmbeddedResourceUtil.ApplyDateTime(invoker.Path, invokerAssembly, "VsixTesting.Invoker.vsix");
+                    EmbeddedResourceUtil.ApplyDateTime(invoker.Path, invokerAssembly, resourceName);
 
                     if (installInvoker)
                         extensionsToInstall = extensionsToInstall.Concat(new[] { invoker.Path });
