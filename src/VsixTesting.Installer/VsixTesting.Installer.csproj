@@ -2,6 +2,8 @@
   <Import Project="VsixTesting.Installer.Common.csproj" />
 
   <PropertyGroup>
+    <Title>$(Title) Installer</Title>
+    <PackageTags>$(PackageTags), VSIX Installer, Installer</PackageTags>
     <IsTool>true</IsTool>
     <Prefer32Bit>true</Prefer32Bit>
     <IsMainProject>true</IsMainProject>

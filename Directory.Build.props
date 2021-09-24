@@ -21,9 +21,11 @@
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/josetr/VsixTesting</PackageProjectUrl>
     <RepositoryUrl>https://github.com/josetr/VsixTesting</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
     <PackageTags>VisualStudio, Extension, Testing, Xunit, VSIX</PackageTags>
     <Copyright>© Jose Torres. All Rights Reserved.</Copyright>
     <Authors>Jose Torres</Authors>
+    <Title>VsixTesting</Title>
     <Description>VsixTesting allows you to easily test your Visual Studio Extensions.</Description>
   </PropertyGroup>
 
