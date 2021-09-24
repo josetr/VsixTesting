@@ -5,6 +5,7 @@
     <IsTool>true</IsTool>
     <Prefer32Bit>true</Prefer32Bit>
     <IsMainProject>true</IsMainProject>
+    <IsPackable>true</IsPackable>
   </PropertyGroup>
 
   <ItemGroup>
