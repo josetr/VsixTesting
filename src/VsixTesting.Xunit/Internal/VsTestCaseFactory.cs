@@ -8,8 +8,10 @@ namespace VsixTesting.XunitX.Internal
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.Linq;
+    using System.Runtime.InteropServices;
     using System.Text;
     using System.Threading;
+    using Common;
     using Vs;
     using VsixTesting.Utilities;
     using Xunit.Abstractions;
@@ -24,7 +26,7 @@ namespace VsixTesting.XunitX.Internal
             = new Lazy<IEnumerable<VsInstallation>>(() => VisualStudioUtil.FindInstallations());
 
         private static Lazy<Process> ParentVsProcess { get; }
-            = new Lazy<Process>(() => ProcessUtil.TryGetParentProcess(Process.GetCurrentProcess(), p => p.ProcessName.Equals(VisualStudioUtil.ProcessName, StringComparison.OrdinalIgnoreCase)));
+            = new Lazy<Process>(() => ProcessUtil.TryGetParentProcess(Process.GetCurrentProcess(), p => p.GetProcessName().Equals(VisualStudioUtil.ProcessName, StringComparison.OrdinalIgnoreCase)));
 
         public static IEnumerable<IXunitTestCase> CreateTheoryTestCases(ITestMethod testMethod, TestMethodDisplay testMethodDisplay, IMessageSink diagnosticMessageSink)
         {
@@ -67,7 +69,7 @@ namespace VsixTesting.XunitX.Internal
         internal static IEnumerable<Instance> GetInstances(IEnumerable<VsInstallation> installations, ITestMethod testMethod, VsTestSettings testSettings, ConcurrentDictionary<string, Instance> instances)
         {
             var output = new StringBuilder();
-            installations = FilterInstallations(installations, testSettings, output, ParentVsProcess.Value?.MainModule?.FileName);
+            installations = FilterInstallations(installations, testSettings, output, ParentVsProcess.Value.GetMainModuleFileName());
 
             if (!installations.Any())
                 throw new InvalidOperationException("Cannot find a viable Visual Studio Instance for the specified test case.\r\n" + output);

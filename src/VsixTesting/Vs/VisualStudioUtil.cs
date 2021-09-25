@@ -37,7 +37,7 @@ namespace Vs
                     return dte;
                 await Task.Delay(250);
                 if ((msTimeout -= 250) <= 0)
-                    throw new TimeoutException($"Failed getting DTE from {process.ProcessName} after waiting {timeout.TotalSeconds} seconds");
+                    throw new TimeoutException($"Failed getting DTE from {process.GetProcessName()} after waiting {timeout.TotalSeconds} seconds");
             }
         }
 

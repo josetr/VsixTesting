@@ -12,6 +12,7 @@
   <ItemGroup>
     <Compile Include="../VsixTesting/Interop/Ole32.cs" Link="VsixTesting/Interop/%(Filename)%(Extension)" />
     <Compile Include="../VsixTesting/Interop/Kernel32.cs" Link="VsixTesting/Interop/%(Filename)%(Extension)" />
+    <Compile Include="../VsixTesting/Interop/Psapi.cs" Link="VsixTesting/Interop/%(Filename)%(Extension)" />
     <Compile Include="../VsixTesting/Common/*.cs" Link="VsixTesting/Common/%(Filename)%(Extension)" />
     <Compile Include="../VsixTesting/Utilities/RetryMessageFilter.cs" Link="VsixTesting/Utilities/%(Filename)%(Extension)" />
     <Compile Include="../VsixTesting/Vs/*.cs" Link="VsixTesting/Vs/%(Filename)%(Extension)" />

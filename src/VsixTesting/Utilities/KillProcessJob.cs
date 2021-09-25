@@ -5,6 +5,7 @@ namespace VsixTesting.Utilities
     using System;
     using System.Diagnostics;
     using System.Runtime.InteropServices;
+    using Common;
     using Microsoft.Win32.SafeHandles;
     using static Interop.Kernel32;
 
@@ -27,7 +28,7 @@ namespace VsixTesting.Utilities
             foreach (var process in processes)
             {
                 if (!AssignProcessToJobObject(jobObject, process.Handle))
-                    throw new InvalidOperationException($"Failed to assign process {process.ProcessName} to job object");
+                    throw new InvalidOperationException($"Failed to assign process {process.GetProcessName()} to job object");
             }
         }
 
