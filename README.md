@@ -6,9 +6,11 @@
 [![codecov](https://codecov.io/gh/josetr/VsixTesting/branch/master/graph/badge.svg)](https://codecov.io/gh/josetr/VsixTesting)
 [![MyGet](https://img.shields.io/myget/vsixtesting/v/VsixTesting.Xunit.svg)](https://www.myget.org/feed/vsixtesting/package/nuget/VsixTesting.Xunit)
 
-VsixTesting allows you to easily test your Visual Studio Extensions. 
+VsixTesting allows you to easily test your Visual Studio Extensions.
 
 ![Image](https://raw.githubusercontent.com/josetr/VsixTesting/master/VsixTesting.png)
+
+It also supports Visual Studio 2019 / 2022.
 
 ## Getting Started
 
@@ -23,21 +25,28 @@ TestProject.csproj
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>net461</TargetFramework>
-    <PlatformTarget>x86</PlatformTarget>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="xunit" Version="2.3.1" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.3.1" />
-    <PackageReference Include="VsixTesting.Xunit" Version="0.1.49-beta" /> 
-    <!-- Optional package containing types used in this sample. -->    
-    <PackageReference Include="VSSDK.Shell.11" Version="11.0.4" /> 
-    <!-- 
-      <ProjectReference Include="..\MyVsixProject\MyVsixProject.csproj" />      
-      * VsixTesting contains an MSBuild target that scans all project references
-         and if they generate a .vsix package, it will copy them 
-         to the output folder where the test assembly is located.
-      * VsixTesting will install all .vsix packages located next to the test assembly.
+
+    <PackageReference Include="VsixTesting.Xunit" Version="0.1.65" /> 
+
+    <!-- Optional package containing shell types used in this sample (VS2017 ~ VS2022) -->    
+    <PackageReference Include="Microsoft.VisualStudio.Shell.15.0" Version="15.0.26201" /> 
+
+    <!-- Optional package containing shell types used in this sample (VS2012 ~ VS2019) -->    
+    <!-- <PackageReference Include="VSSDK.Shell.11" Version="11.0.4" /> -->
+
+    <!-- Optional project reference to your VSIX Project -->
+    <!-- <ProjectReference Include="..\MyVsixProject\MyVsixProject.csproj" /> -->
+    <!--
+       VsixTesting contains an MSBuild target that scans all project references
+       and if they generate a .vsix package, it will copy them 
+       to the output folder where the test assembly is located, which
+       will cause VsixTesting to install such packages because all packages
+       located next to the test assembly are installed by default.
     -->        
   </ItemGroup>
 </Project>
