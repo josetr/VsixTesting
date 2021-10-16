@@ -56,10 +56,15 @@ namespace VsixTesting
 
                     if (installResult.InstallCount > 0)
                     {
-                        output.WriteLine("Clearing cache");
-                        await VisualStudioUtil.ClearCacheAsync(hive);
-                        output.WriteLine("Updating configuration");
-                        await VisualStudioUtil.UpdateConfigurationAsync(hive);
+                        var vsixTestingCI = "TRUE".Equals(Environment.GetEnvironmentVariable("VSIXTESTING_CI"), StringComparison.OrdinalIgnoreCase);
+                        var skip = vsixTestingCI && installInvoker && extensionsToInstall.Count() == 1;
+                        if (!skip)
+                        {
+                            output.WriteLine("Clearing cache");
+                            await VisualStudioUtil.ClearCacheAsync(hive);
+                            output.WriteLine("Updating configuration");
+                            await VisualStudioUtil.UpdateConfigurationAsync(hive);
+                        }
                     }
                 }
 

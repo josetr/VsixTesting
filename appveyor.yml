@@ -4,6 +4,9 @@ platform: Any CPU
 version: 0.0.{build}
 skip_branch_with_pr: true
 
+environment:
+  VSIXTESTING_CI: TRUE
+
 install:
 - mkdir artifacts
 - dotnet tool install -g nbgv

@@ -13,6 +13,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     env:
       CONFIGURATION: Release
+      VSIXTESTING_CI: TRUE
 
     steps:
       - uses: actions/checkout@v2
