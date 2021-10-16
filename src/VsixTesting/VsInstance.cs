@@ -69,7 +69,7 @@ namespace VsixTesting
 
                 output.WriteLine($"IsProfileInitialized: {isProfileInitialized}, resetSettings: {resetSettings}");
 
-                if (!isProfileInitialized || resetSettings)
+                if (resetSettings)
                 {
                     output.WriteLine("Resetting settings");
                     await VisualStudioUtil.ResetSettingsAsync(hive);

@@ -8,6 +8,7 @@ namespace VsixTesting.Installer
 {
     using System;
     using System.Collections.Generic;
+using System.Configuration;
     using System.Diagnostics;
     using System.IO;
     using System.Linq;
@@ -192,8 +193,29 @@ namespace VsixTesting.Installer
 
         public static int Install(string applicationPath, string rootSuffix, IEnumerable<string> extensionPaths, bool? allUsers = default)
         {
+            Console.WriteLine("CreateForApplication" + DateTime.Now);
+
             using (var externalSettingsManager = ExternalSettingsManager.CreateForApplication(applicationPath, rootSuffix))
             {
+                Console.WriteLine("GetWritableSettingsStore" + DateTime.Now);
+                var settings = externalSettingsManager.GetWritableSettingsStore(SettingsScope.UserSettings);
+
+                Console.WriteLine("CollectionExists(Profile)" + DateTime.Now);
+                var isProfileInitialized = settings.CollectionExists("Profile") && settings.GetPropertyNames("Profile").Contains("LastResetSettingsFile");
+
+                if (!isProfileInitialized)
+                {
+                    Console.WriteLine("Initializing Profile..." + DateTime.Now);
+                    var process = Process.Start(new ProcessStartInfo
+                    {
+                        FileName = $"/resetsettings General.vssettings /command \"File.Exit\"",
+                        Arguments = Environment.CommandLine,
+                        UseShellExecute = false,
+                    });
+
+                    process.WaitForExit();
+                }
+
                 using (var installer = new Installer(externalSettingsManager))
                     return extensionPaths.Count(path => installer.Install(path, allUsers: allUsers));
             }
