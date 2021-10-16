@@ -50,7 +50,7 @@ namespace VsixTesting
                     if (installInvoker)
                         extensionsToInstall = extensionsToInstall.Concat(new[] { invoker.Path });
 
-                    var installResult = await VisualStudioUtil.InstallExtensionsAsync(hive, extensionsToInstall.Concat(new[] { invoker.Path }));
+                    var installResult = await VisualStudioUtil.InstallExtensionsAsync(hive, extensionsToInstall);
 
                     output.WriteLine(installResult.Output);
 
