@@ -197,6 +197,23 @@ namespace VsixTesting.Installer
         {
             using (var externalSettingsManager = ExternalSettingsManager.CreateForApplication(applicationPath, rootSuffix))
             {
+                var settings = externalSettingsManager.GetWritableSettingsStore(SettingsScope.UserSettings);
+                var isProfileInitialized = settings.CollectionExists("Profile") && settings.GetPropertyNames("Profile").Contains("LastResetSettingsFile");
+
+                if (!isProfileInitialized)
+                {
+                    Console.WriteLine("Initializing profile");
+
+                    var process = Process.Start(new ProcessStartInfo
+                    {
+                        FileName = applicationPath,
+                        Arguments = $"/RootSuffix Exp /ResetSettings General.vssettings /command \"File.Exit\"",
+                        UseShellExecute = false,
+                    });
+
+                    process.WaitForExit();
+                }
+
                 using (var installer = new Installer(externalSettingsManager))
                     return extensionPaths.Count(path => installer.Install(path, allUsers: allUsers));
             }
