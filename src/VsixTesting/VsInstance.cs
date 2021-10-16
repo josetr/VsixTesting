@@ -50,8 +50,11 @@ namespace VsixTesting
                     if (installInvoker)
                         extensionsToInstall = extensionsToInstall.Concat(new[] { invoker.Path });
 
+                    output.WriteLine($"Checking if profile is initialized");
                     isProfileInitialized = await VisualStudioUtil.IsProfileInitializedAsync(hive);
-                    var installResult = await VisualStudioUtil.InstallExtensionsAsync(hive, extensionsToInstall.Concat(new[] { invoker.Path }));
+
+                    output.WriteLine($"Installing {extensionsToInstall.Count()} extensions");
+                    var installResult = await VisualStudioUtil.InstallExtensionsAsync(hive, extensionsToInstall);
 
                     output.WriteLine(installResult.Output);
 
