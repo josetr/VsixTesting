@@ -24,7 +24,7 @@ namespace VsixTesting.XunitX.Tests
         void FactWorks()
             => Assert.True(true);
 
-        [VsFact]
+        [VsFact(Skip = "TODO")]
         void FactRunningInsideVisualStudio()
             => Assert.NotNull(VisualStudioUtil.GetDTE(Process.GetCurrentProcess()));
 

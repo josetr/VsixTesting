@@ -29,7 +29,7 @@ namespace VsixTesting.XunitX.Tests
             Assert.True(number == 1 || number == 5 || number == 100);
         }
 
-        [VsTheory]
+        [VsTheory(Skip = "TODO")]
         [InlineData(0)]
         void TheoryRunningInsideVisualStudio(int zero)
         {
