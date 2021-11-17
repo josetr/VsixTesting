@@ -33,7 +33,7 @@ namespace VsixTesting.XunitX.Tests
         [InlineData(0)]
         void TheoryRunningInsideVisualStudio(int zero)
         {
-            Assert.NotNull(VisualStudioUtil.GetDTE(Process.GetCurrentProcess()));
+            Assert.NotNull(VisualStudioUtil.GetDTEObject(Process.GetCurrentProcess()));
             Assert.Equal(0, zero);
         }
 

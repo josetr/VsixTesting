@@ -23,8 +23,7 @@ namespace Vs
 
         public static DTE GetDTE(Process process)
         {
-            string namePattern = $@"!VisualStudio\.DTE\.(\d+\.\d+):{process.Id.ToString()}";
-            return (DTE)RunningObjectTable.GetRunningObjects(namePattern).FirstOrDefault();
+            return (DTE)GetDTEObject(process);
         }
 
         public static async Task<DTE> GetDTE(Process process, TimeSpan timeout)
@@ -163,6 +162,12 @@ namespace Vs
 
         internal static string GetApplicationPath(string installationPath)
             => Path.Combine(installationPath, "Common7", "IDE", ProcessName + ".exe");
+
+        internal static object GetDTEObject(Process process)
+        {
+            string namePattern = $@"!VisualStudio\.DTE\.(\d+\.\d+):{process.Id.ToString()}";
+            return RunningObjectTable.GetRunningObjects(namePattern).FirstOrDefault();
+        }
 
         private static string GetRootSuffixAsArgument(string rootSuffix)
             => string.IsNullOrWhiteSpace(rootSuffix) ? string.Empty : $"/rootSuffix {rootSuffix}";

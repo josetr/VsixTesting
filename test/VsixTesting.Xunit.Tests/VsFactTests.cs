@@ -26,7 +26,7 @@ namespace VsixTesting.XunitX.Tests
 
         [VsFact]
         void FactRunningInsideVisualStudio()
-            => Assert.NotNull(VisualStudioUtil.GetDTE(Process.GetCurrentProcess()));
+            => Assert.NotNull(VisualStudioUtil.GetDTEObject(Process.GetCurrentProcess()));
 
         [VsFact(Skip = "Fact Skip works.")]
         void FactSkipWorks()
