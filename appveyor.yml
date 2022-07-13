@@ -6,7 +6,7 @@ skip_branch_with_pr: true
 
 install:
 - mkdir artifacts
-- dotnet tool install -g nbgv
+- dotnet tool install -g nbgv --version 3.4.255
 - nbgv cloud --all-vars
 - msbuild src/VsixTesting.Xunit /t:restore /v:m /nologo
 - msbuild src/VsixTesting.Xunit /v:m /nologo
