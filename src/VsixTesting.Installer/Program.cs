@@ -14,6 +14,7 @@ namespace VsixTesting.Installer
     using System.Reflection;
     using System.Runtime.InteropServices;
     using System.Text;
+    using System.Xml;
     using Microsoft.VisualStudio.ExtensionManager;
     using Vs;
     using VsixTesting.Utilities;
@@ -108,6 +109,8 @@ namespace VsixTesting.Installer
         private static AppDomain CreateAppDomain(string applicationPath)
         {
             var appDomainSetup = new AppDomainSetup { ApplicationBase = Path.GetDirectoryName(typeof(Program).Assembly.Location) };
+            var applicationDir = Path.GetDirectoryName(applicationPath);
+
             appDomainSetup.SetConfigurationBytes(Encoding.UTF8.GetBytes($@"<?xml version=""1.0"" encoding=""utf-8""?>
 <configuration>
 <runtime>
@@ -116,13 +119,58 @@ namespace VsixTesting.Installer
             <assemblyIdentity name=""Microsoft.VisualStudio.ExtensionManager"" publicKeyToken=""b03f5f7f11d50a3a"" culture=""neutral"" />
             <bindingRedirect oldVersion=""10.0.0.0-{VsProductVersion.Major}.0.0.0"" newVersion=""{VsProductVersion.Major}.0.0.0"" />
         </dependentAssembly>
+        {GetJsonRedirect()}
     </assemblyBinding>
     </runtime>
 </configuration>"));
+
             var appDomain = AppDomain.CreateDomain($"{nameof(Installer)} {VsProductVersion}", null, appDomainSetup);
             var assemblyResolver = appDomain.CreateInstanceFromAndUnwrap<AssemblyResolver>();
-            assemblyResolver.Install(Path.GetDirectoryName(applicationPath));
+            assemblyResolver.Install(applicationDir);
             return appDomain;
+
+            string GetJsonRedirect()
+            {
+                var jsonAssemblyPath = Path.Combine(applicationDir, "PrivateAssemblies\\Newtonsoft.Json.dll");
+                if (File.Exists(jsonAssemblyPath))
+                    return string.Empty;
+
+                var document = new XmlDocument();
+                document.Load(applicationPath + ".config");
+                var root = document.DocumentElement;
+
+                var nsmgr = new XmlNamespaceManager(document.NameTable);
+                nsmgr.AddNamespace("ms", "urn:schemas-microsoft-com:asm.v1");
+
+                var nodes = root.SelectNodes("//ms:dependentAssembly", nsmgr);
+                foreach (XmlNode node in nodes)
+                {
+                    var assemblyIdentity = node.SelectSingleNode("ms:assemblyIdentity", nsmgr);
+                    if (assemblyIdentity == null)
+                        continue;
+
+                    foreach (XmlAttribute assemblyIdentityAttribute in assemblyIdentity.Attributes)
+                    {
+                        if (assemblyIdentityAttribute.Value != "Newtonsoft.Json")
+                            continue;
+
+                        var codeBase = node.SelectSingleNode("ms:codeBase", nsmgr);
+                        if (codeBase == null)
+                            continue;
+
+                        foreach (XmlAttribute codeBaseAttribute in codeBase.Attributes)
+                        {
+                            if (codeBaseAttribute.Name != "href")
+                                continue;
+
+                            codeBaseAttribute.Value = Path.Combine(applicationDir, codeBaseAttribute.Value);
+                            return node.OuterXml;
+                        }
+                    }
+                }
+
+                return string.Empty;
+            }
         }
 
         private static ResolveEventHandler CreateAssemblyResolver(string applicationDirectory)
