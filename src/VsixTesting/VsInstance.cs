@@ -163,7 +163,7 @@ namespace VsixTesting
 
         private static object InvokeRemote(IRemoteComInvoker comInvoker, string method, params object[] arguments)
         {
-            var assemblyPath = new Uri(typeof(Remote).Assembly.CodeBase).AbsolutePath;
+            var assemblyPath = new Uri(typeof(Remote).Assembly.CodeBase).LocalPath;
             return comInvoker.InvokeMethod(assemblyPath, typeof(Remote).FullName, method, null, arguments);
         }
     }
