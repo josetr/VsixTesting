@@ -14,6 +14,7 @@ namespace VsixTesting.Installer
     using System.Reflection;
     using System.Runtime.InteropServices;
     using System.Text;
+    using System.Threading.Tasks;
     using System.Xml;
     using Microsoft.VisualStudio.ExtensionManager;
     using Vs;
@@ -110,7 +111,12 @@ namespace VsixTesting.Installer
         {
             var appDomainSetup = new AppDomainSetup { ApplicationBase = Path.GetDirectoryName(typeof(Program).Assembly.Location) };
             var applicationDir = Path.GetDirectoryName(applicationPath);
-
+            var assemblies = new List<string>();
+            var jsonAssemblyPath = Path.Combine(applicationDir, "PrivateAssemblies\\Newtonsoft.Json.dll");
+            if (!File.Exists(jsonAssemblyPath))
+                assemblies.Add("Newtonsoft.Json");
+            if (VsProductVersion.Major >= 17)
+                assemblies.Add("Microsoft.VisualStudio.Threading");
             appDomainSetup.SetConfigurationBytes(Encoding.UTF8.GetBytes($@"<?xml version=""1.0"" encoding=""utf-8""?>
 <configuration>
 <runtime>
@@ -119,7 +125,7 @@ namespace VsixTesting.Installer
             <assemblyIdentity name=""Microsoft.VisualStudio.ExtensionManager"" publicKeyToken=""b03f5f7f11d50a3a"" culture=""neutral"" />
             <bindingRedirect oldVersion=""10.0.0.0-{VsProductVersion.Major}.0.0.0"" newVersion=""{VsProductVersion.Major}.0.0.0"" />
         </dependentAssembly>
-        {GetJsonRedirect()}
+        {GetRedirects()}
     </assemblyBinding>
     </runtime>
 </configuration>"));
@@ -129,12 +135,8 @@ namespace VsixTesting.Installer
             assemblyResolver.Install(applicationDir);
             return appDomain;
 
-            string GetJsonRedirect()
+            string GetRedirects()
             {
-                var jsonAssemblyPath = Path.Combine(applicationDir, "PrivateAssemblies\\Newtonsoft.Json.dll");
-                if (File.Exists(jsonAssemblyPath))
-                    return string.Empty;
-
                 var document = new XmlDocument();
                 document.Load(applicationPath + ".config");
                 var root = document.DocumentElement;
@@ -143,6 +145,8 @@ namespace VsixTesting.Installer
                 nsmgr.AddNamespace("ms", "urn:schemas-microsoft-com:asm.v1");
 
                 var nodes = root.SelectNodes("//ms:dependentAssembly", nsmgr);
+                var result = new StringBuilder();
+
                 foreach (XmlNode node in nodes)
                 {
                     var assemblyIdentity = node.SelectSingleNode("ms:assemblyIdentity", nsmgr);
@@ -151,7 +155,7 @@ namespace VsixTesting.Installer
 
                     foreach (XmlAttribute assemblyIdentityAttribute in assemblyIdentity.Attributes)
                     {
-                        if (assemblyIdentityAttribute.Value != "Newtonsoft.Json")
+                        if (!assemblies.Contains(assemblyIdentityAttribute.Value))
                             continue;
 
                         var codeBase = node.SelectSingleNode("ms:codeBase", nsmgr);
@@ -164,12 +168,12 @@ namespace VsixTesting.Installer
                                 continue;
 
                             codeBaseAttribute.Value = Path.Combine(applicationDir, codeBaseAttribute.Value);
-                            return node.OuterXml;
+                            result.AppendLine(node.OuterXml);
                         }
                     }
                 }
 
-                return string.Empty;
+                return result.ToString();
             }
         }
 
