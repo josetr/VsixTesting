@@ -211,7 +211,7 @@ namespace VsixTesting.Installer
                     {
                         // When searching nested directories, we can encounter different versions
                         // of the same library. We want to pick the best matching version.
-                        List<Tuple<string, Version>> assemblyFiles = new ();
+                        var assemblyFiles = new List<Tuple<string, Version>>();
 
                         foreach (string dir in Directory.GetDirectories(probingPath, $"{assemblyName.Name}*"))
                         {
@@ -222,7 +222,7 @@ namespace VsixTesting.Installer
                             }
 
                             Version version = GetAssemblyVersionOrDefault(assemblyFile);
-                            assemblyFiles.Add(new (assemblyFile, version));
+                            assemblyFiles.Add(Tuple.Create(assemblyFile, version));
                         }
 
                         if (assemblyFiles.Count > 0)
