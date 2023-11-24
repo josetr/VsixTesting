@@ -6,6 +6,8 @@ namespace VsixTesting.XunitX.Tests
     using System.Diagnostics;
     using System.IO;
     using System.Threading;
+    using System.Threading.Tasks;
+    using System.Windows;
     using System.Windows.Threading;
     using Microsoft.VisualStudio.ComponentModelHost;
     using Microsoft.VisualStudio.Shell;
@@ -90,8 +92,9 @@ namespace VsixTesting.XunitX.Tests
                 => Assert.Equal(constructorThreadId, Thread.CurrentThread.ManagedThreadId);
 
             [VsFact]
-            void MethodHasSameSyncContextTypeAsConstructor()
+            async void MethodHasSameSyncContextTypeAsConstructor()
             {
+                await Task.Delay(0);
                 var asyncTestSyncContext = (AsyncTestSyncContext)SynchronizationContext.Current;
                 Assert.IsType(synchronizationContext.GetType(), asyncTestSyncContext.GetInnerSyncContext());
             }
@@ -120,6 +123,14 @@ namespace VsixTesting.XunitX.Tests
                 Assert.IsType<DispatcherSynchronizationContext>(asyncTestSyncContext.GetInnerSyncContext());
                 await Task.Yield();
                 Assert.IsType<DispatcherSynchronizationContext>(SynchronizationContext.Current);
+            }
+
+            [VsFact]
+            void DteWindow()
+            {
+                var dte = (EnvDTE.DTE)ServiceProvider.GlobalProvider.GetService(typeof(SDTE));
+                var window = dte.ItemOperations.NewFile(Name: Guid.NewGuid() + ".txt");
+                window.Close(EnvDTE.vsSaveChanges.vsSaveChangesNo);
             }
         }
 
