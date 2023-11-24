@@ -179,21 +179,88 @@ namespace VsixTesting.Installer
 
         private static ResolveEventHandler CreateAssemblyResolver(string applicationDirectory)
         {
-            var probingPaths = new[] { ".", "PrivateAssemblies", "PublicAssemblies" }
-                .Select(relativeDir => Path.Combine(applicationDirectory, relativeDir));
-
+            // Visual Studio is putting some DLLs into subdirectories:
+            // e.g., PublicAssemblies\Nerdbank.Streams.2.x
+            // It is not possible to predict the names that will be used by future
+            // Visual Studio versions. So, we search all first-level subdirectories
+            // for those. We don't do full-recursive search because that is prohibitively
+            // expensive, and causes 2x performance degradation.
+            var probingPaths = new Dictionary<string, bool>
+            {
+                { ".", false },
+                { "PrivateAssemblies", true },
+                { "PublicAssemblies", true },
+            }.ToDictionary(
+                kv => Path.Combine(applicationDirectory, kv.Key),
+                kv => kv.Value);
             return (object sender, ResolveEventArgs eventArgs) =>
             {
                 var assemblyName = new AssemblyName(eventArgs.Name);
-                foreach (var probingPath in probingPaths)
+                foreach (var entry in probingPaths)
                 {
+                    var probingPath = entry.Key;
+                    var searchNestedDirs = entry.Value;
+
                     var assemblyFile = Path.Combine(probingPath, $"{assemblyName.Name}.dll");
                     if (File.Exists(assemblyFile))
+                    {
                         return Assembly.LoadFrom(assemblyFile);
+                    }
+
+                    if (searchNestedDirs)
+                    {
+                        // When searching nested directories, we can encounter different versions
+                        // of the same library. We want to pick the best matching version.
+                        var assemblyFiles = new List<Tuple<string, Version>>();
+
+                        foreach (string dir in Directory.GetDirectories(probingPath, $"{assemblyName.Name}*"))
+                        {
+                            assemblyFile = Path.Combine(dir, $"{assemblyName.Name}.dll");
+                            if (!File.Exists(assemblyFile))
+                            {
+                                continue;
+                            }
+
+                            Version version = GetAssemblyVersionOrDefault(assemblyFile);
+                            assemblyFiles.Add(Tuple.Create(assemblyFile, version));
+                        }
+
+                        if (assemblyFiles.Count > 0)
+                        {
+                            var bestMatch =
+                                assemblyFiles.FirstOrDefault(tuple =>
+                                    tuple.Item2.Major == assemblyName.Version.Major &&
+                                    tuple.Item2.Minor == assemblyName.Version.Minor &&
+                                    tuple.Item2.Revision == assemblyName.Version.Revision) ??
+
+                                assemblyFiles.FirstOrDefault(tuple =>
+                                    tuple.Item2.Major == assemblyName.Version.Major &&
+                                    tuple.Item2.Minor == assemblyName.Version.Minor) ??
+
+                                assemblyFiles.FirstOrDefault(tuple =>
+                                    tuple.Item2.Major == assemblyName.Version.Major) ??
+
+                                assemblyFiles.OrderBy(tuple => tuple.Item2.Major).LastOrDefault();
+
+                            return Assembly.LoadFrom(bestMatch.Item1);
+                        }
+                    }
                 }
 
                 return null;
             };
+        }
+
+        private static Version GetAssemblyVersionOrDefault(string path)
+        {
+            try
+            {
+                return AssemblyName.GetAssemblyName(path).Version;
+            }
+            catch
+            {
+                return new Version(0, 0, 0);
+            }
         }
 
         private static int StartProcess(string filename)
