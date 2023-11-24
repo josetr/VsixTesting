@@ -209,19 +209,58 @@ namespace VsixTesting.Installer
 
                     if (searchNestedDirs)
                     {
+                        // When searching nested directories, we can encounter different versions
+                        // of the same library. We want to pick the best matching version.
+                        List<Tuple<string, Version>> assemblyFiles = new ();
+
                         foreach (string dir in Directory.GetDirectories(probingPath))
                         {
                             assemblyFile = Path.Combine(dir, $"{assemblyName.Name}.dll");
-                            if (File.Exists(assemblyFile))
+                            if (!File.Exists(assemblyFile))
                             {
-                                return Assembly.LoadFrom(assemblyFile);
+                                continue;
                             }
+
+                            Version version = GetAssemblyVersionOrDefault(assemblyFile);
+                            assemblyFiles.Add(new (assemblyFile, version));
+                        }
+
+                        if (assemblyFiles.Count > 0)
+                        {
+                            var bestMatch =
+                                assemblyFiles.FirstOrDefault(tuple =>
+                                    tuple.Item2.Major == assemblyName.Version.Major &&
+                                    tuple.Item2.Minor == assemblyName.Version.Minor &&
+                                    tuple.Item2.Revision == assemblyName.Version.Revision) ??
+
+                                assemblyFiles.FirstOrDefault(tuple =>
+                                    tuple.Item2.Major == assemblyName.Version.Major &&
+                                    tuple.Item2.Minor == assemblyName.Version.Minor) ??
+
+                                assemblyFiles.FirstOrDefault(tuple =>
+                                    tuple.Item2.Major == assemblyName.Version.Major) ??
+
+                                assemblyFiles.OrderBy(tuple => tuple.Item2.Major).LastOrDefault();
+
+                            return Assembly.LoadFrom(bestMatch.Item1);
                         }
                     }
                 }
 
                 return null;
             };
+        }
+
+        private static Version GetAssemblyVersionOrDefault(string path)
+        {
+            try
+            {
+                return AssemblyName.GetAssemblyName(path).Version;
+            }
+            catch
+            {
+                return new Version(0, 0, 0);
+            }
         }
 
         private static int StartProcess(string filename)
