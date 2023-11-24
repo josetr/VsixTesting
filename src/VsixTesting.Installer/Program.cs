@@ -213,7 +213,7 @@ namespace VsixTesting.Installer
                         // of the same library. We want to pick the best matching version.
                         List<Tuple<string, Version>> assemblyFiles = new ();
 
-                        foreach (string dir in Directory.GetDirectories(probingPath))
+                        foreach (string dir in Directory.GetDirectories(probingPath, $"{assemblyName.Name}*"))
                         {
                             assemblyFile = Path.Combine(dir, $"{assemblyName.Name}.dll");
                             if (!File.Exists(assemblyFile))
